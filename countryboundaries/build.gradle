@@ -2,7 +2,7 @@ apply plugin: 'java-library'
 
 dependencies {
     implementation 'org.json:json:20171018'
-    implementation 'com.vividsolutions:jts-core:1.14.0'
+    api 'com.vividsolutions:jts-core:1.14.0'
     testImplementation 'junit:junit:4.12'
 }
 

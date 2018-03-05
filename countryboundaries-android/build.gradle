@@ -17,8 +17,6 @@ android {
 }
 
 dependencies {
-    implementation 'com.vividsolutions:jts-core:1.14.0'
-
     api (project(':countryboundaries'))
     {
         exclude group: 'org.json', module: 'json' // already included in Android
