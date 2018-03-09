@@ -1,1 +1,1 @@
-include ':app', ':countryboundaries',':countryboundaries-android'
+include ':sampleapp', ':library', ':generator'
