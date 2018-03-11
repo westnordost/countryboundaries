@@ -1,11 +1,27 @@
 apply plugin: 'java'
+apply plugin: 'application'
+
+mainClassName = 'de.westnordost.countryboundaries.Main'
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': "$mainClassName"
+    }
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+run {
+    args = ['boundaries.osm','36','18']
+}
 
 dependencies {
-    implementation 'net.sf.kxml:kxml2:2.3.0'
-    implementation 'org.json:json:20171018'
-    implementation 'com.vividsolutions:jts-core:1.14.0'
+    compile 'net.sf.kxml:kxml2:2.3.0'
+    compile 'org.json:json:20171018'
+    compile 'com.vividsolutions:jts-core:1.14.0'
 
-    implementation project(':library')
+    compile project(':library')
 
     testImplementation 'junit:junit:4.12'
 }

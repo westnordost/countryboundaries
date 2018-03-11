@@ -162,7 +162,7 @@ public class GeoJsonWriter
 			}
 			mp = mp.getFactory().createMultiPolygon(reversedPolys);
 
-			writeMultiMultiCoordinates(b, mp);
+			writeMultiPolygon(b, mp);
 		}
 		else if (g instanceof GeometryCollection)
 		{
@@ -189,18 +189,7 @@ public class GeoJsonWriter
 	{
 		Polygon r = (Polygon) geometry.clone();
 		r.normalize();
-		r.reverse();
-		return r;
-	}
-
-	private void writeMultiMultiCoordinates(JSONStringer b, Geometry g) throws JSONException
-	{
-		b.array();
-		for (int i = 0; i < g.getNumGeometries(); i++)
-		{
-			writeMultiCoordinates(b, g.getGeometryN(i));
-		}
-		b.endArray();
+		return (Polygon) r.reverse();
 	}
 
 	private void writeMultiCoordinates(JSONStringer b, Geometry g) throws JSONException
@@ -209,6 +198,16 @@ public class GeoJsonWriter
 		for (int i = 0; i < g.getNumGeometries(); i++)
 		{
 			writeCoordinates(b, g.getGeometryN(i).getCoordinates());
+		}
+		b.endArray();
+	}
+
+	private void writeMultiPolygon(JSONStringer b, MultiPolygon mp) throws JSONException
+	{
+		b.array();
+		for (int i = 0; i < mp.getNumGeometries(); i++)
+		{
+			writePolygon(b, (Polygon) mp.getGeometryN(i));
 		}
 		b.endArray();
 	}

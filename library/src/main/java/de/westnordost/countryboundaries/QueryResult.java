@@ -51,4 +51,10 @@ public class QueryResult
 	{
 		return 31 * containingIds.hashCode() + intersectingIds.hashCode();
 	}
+
+	@Override public String toString()
+	{
+
+		return Arrays.toString(containingIds.toArray()) + " " + Arrays.toString(intersectingIds.toArray());
+	}
 }

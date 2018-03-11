@@ -22,4 +22,15 @@ public class RasterSpatialIndexJsonReaderTest
 
 		assertEquals(expected, parsed);
 	}
+
+	@Test public void throwsExceptionOnTooManyIndices()
+	{
+		try
+		{
+			RasterSpatialIndex parsed = new RasterSpatialIndexJsonReader().read(
+					"{\"raster\":[32768],\"rasterWidth\":1,\"indices\":[]}");
+			fail();
+		}
+		catch (IllegalArgumentException e) {}
+	}
 }

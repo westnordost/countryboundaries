@@ -2,6 +2,7 @@ package de.westnordost.countryboundaries;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -103,10 +104,40 @@ public class RasterSpatialIndexTest
 
 		assertEquals(r(AB, null),   merge(r(AB, null), r(AB, null)));
 
-		assertEquals(r(null, A),   merge(r(A, null), r(null, A)));
-		assertEquals(r(null, A),   merge(r(null, A), r(A, null)));
+		assertEquals(r(null, A),    merge(r(A, null), r(null, A)));
+		assertEquals(r(null, A),    merge(r(null, A), r(A, null)));
 
 		assertEquals(r(null, AB),   merge(r(null, A), r(null, AB)));
+	}
+
+	@Test public void equals()
+	{
+		String[] A = {"A"};
+		String[] B = {"B"};
+		String[] C = {"C"};
+		String[] D = {"D"};
+
+		RasterSpatialIndex index1 = new RasterSpatialIndex(
+				new short[]{0,1}, 1, new QueryResult[]{r(A,B), r(C,D)});
+		RasterSpatialIndex index2 = new RasterSpatialIndex(
+				new short[]{0,1}, 1, new QueryResult[]{r(A,B), r(C,D)});
+		assertEquals(index1, index2);
+		assertEquals(index1.hashCode(), index2.hashCode());
+	}
+
+	@Test public void gettersReturnsCorrectStuff()
+	{
+		String[] A = {"A"};
+		String[] B = {"B"};
+		String[] C = {"C"};
+		String[] D = {"D"};
+
+		RasterSpatialIndex index = new RasterSpatialIndex(
+				new short[]{0,1}, 1, new QueryResult[]{r(A,B), r(C,D)});
+
+		assertEquals(1,index.getRasterWidth());
+		assertArrayEquals(new short[]{0,1}, index.getRaster());
+		assertArrayEquals(new QueryResult[]{r(A,B), r(C,D)}, index.getIndices());
 	}
 
 	private static QueryResult merge(QueryResult q0, QueryResult q1)

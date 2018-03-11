@@ -13,13 +13,14 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class ConvertToOgcSfsCompliantGeometryFactoryTest
+public class OgcSfsCompliantPolygonCreatorTest
 {
 	@Test public void createPolygonWithMergableHoles()
 	{
-		GeometryFactory factory = new ConvertToOgcSfsCompliantGeometryFactory(new PrecisionModel());
+		GeometryFactory factory = new GeometryFactory(new PrecisionModel());
+		OgcSfsCompliantPolygonCreator creator = new OgcSfsCompliantPolygonCreator(factory);
 
-		Polygon p = factory.createPolygon(
+		Polygon p = creator.createPolygon(
 			factory.createLinearRing(new Coordinate[]{p(0,0),p(4,0),p(4,4),p(0,4),p(0,0)}),
 			new LinearRing[]{
 					factory.createLinearRing(new Coordinate[]{p(1,1),p(1,3),p(3,3),p(1,1)}),
@@ -38,9 +39,10 @@ public class ConvertToOgcSfsCompliantGeometryFactoryTest
 
 	@Test public void createMultiPolygonMergable()
 	{
-		GeometryFactory factory = new ConvertToOgcSfsCompliantGeometryFactory(new PrecisionModel());
+		GeometryFactory factory = new GeometryFactory(new PrecisionModel());
+		OgcSfsCompliantPolygonCreator creator = new OgcSfsCompliantPolygonCreator(factory);
 
-		MultiPolygon mp = factory.createMultiPolygon(new Polygon[]{
+		MultiPolygon mp = creator.createMultiPolygon(new Polygon[]{
 			factory.createPolygon(new Coordinate[]{p(0,0),p(4,0),p(0,4),p(0,0)}),
 			factory.createPolygon(new Coordinate[]{p(4,0),p(4,4),p(0,4),p(4,0)}),
 			factory.createPolygon(new Coordinate[]{p(4,0),p(8,4),p(4,4),p(4,0)})

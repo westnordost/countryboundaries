@@ -1,12 +1,10 @@
 package de.westnordost.countryboundaries;
 
-import com.vividsolutions.jts.geom.CoordinateSequenceFactory;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.PrecisionModel;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,44 +22,31 @@ import java.util.Arrays;
  *  quite expensive, so only use this factory if the input cannot be guaranteed to be compliant
  *  already.
  *  */
-public class ConvertToOgcSfsCompliantGeometryFactory extends GeometryFactory
+public class OgcSfsCompliantPolygonCreator
 {
-	public ConvertToOgcSfsCompliantGeometryFactory(PrecisionModel precisionModel, int SRID, CoordinateSequenceFactory coordinateSequenceFactory)
+	private final GeometryFactory factory;
+
+	public OgcSfsCompliantPolygonCreator(GeometryFactory factory)
 	{
-		super(precisionModel, SRID, coordinateSequenceFactory);
+		this.factory = factory;
 	}
 
-	public ConvertToOgcSfsCompliantGeometryFactory(CoordinateSequenceFactory coordinateSequenceFactory)
-	{
-		super(coordinateSequenceFactory);
-	}
-
-	public ConvertToOgcSfsCompliantGeometryFactory(PrecisionModel precisionModel)
-	{
-		super(precisionModel);
-	}
-
-	public ConvertToOgcSfsCompliantGeometryFactory(PrecisionModel precisionModel, int SRID)
-	{
-		super(precisionModel, SRID);
-	}
-
-	@Override public MultiPolygon createMultiPolygon(Polygon[] polygons)
+	public MultiPolygon createMultiPolygon(Polygon[] polygons)
 	{
 		ArrayList<Polygon> polygonList = new ArrayList<>(Arrays.asList(polygons));
 		mergePolygons(polygonList);
-		return super.createMultiPolygon(polygonList.toArray(new Polygon[]{}));
+		return factory.createMultiPolygon(polygonList.toArray(new Polygon[]{}));
 	}
 
-	@Override public Polygon createPolygon(LinearRing shell, LinearRing[] holes)
+	public Polygon createPolygon(LinearRing shell, LinearRing[] holes)
 	{
 		if(holes == null)
 		{
-			return super.createPolygon(shell, null);
+			return factory.createPolygon(shell, null);
 		}
 		ArrayList<LinearRing> holesList = new ArrayList<>(Arrays.asList(holes));
 		mergeHoles(holesList);
-		return super.createPolygon(shell, holesList.toArray(new LinearRing[]{}));
+		return factory.createPolygon(shell, holesList.toArray(new LinearRing[]{}));
 	}
 
 	private void mergeHoles(ArrayList<LinearRing> rings)
@@ -73,7 +58,7 @@ public class ConvertToOgcSfsCompliantGeometryFactory extends GeometryFactory
 		ArrayList<Polygon> polygons = new ArrayList<>(rings.size());
 		for (LinearRing ring : rings)
 		{
-			polygons.add(createPolygon(ring));
+			polygons.add(factory.createPolygon(ring));
 		}
 		mergePolygons(polygons);
 

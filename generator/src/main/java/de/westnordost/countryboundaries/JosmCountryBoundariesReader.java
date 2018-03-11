@@ -22,8 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-// TODO test
-public class JosmCountryBoundariesParser
+public class JosmCountryBoundariesReader
 {
 	// https://josm.openstreetmap.de/export/HEAD/josm/trunk/data/boundaries.osm
 
@@ -31,8 +30,8 @@ public class JosmCountryBoundariesParser
 	private static final String ISO3166_2 = "ISO3166-2";
 
 	private static final int WGS84 = 4326;
-	private final GeometryFactory factory =
-			new ConvertToOgcSfsCompliantGeometryFactory(new PrecisionModel(), WGS84);
+	private final GeometryFactory factory = new GeometryFactory(new PrecisionModel(), WGS84);
+	private final OgcSfsCompliantPolygonCreator creator = new OgcSfsCompliantPolygonCreator(factory);
 
 	public GeometryCollection read(Reader reader) throws OsmXmlException
 	{
@@ -86,11 +85,12 @@ public class JosmCountryBoundariesParser
 				}
 				else if("member".equals(name) && relation != null)
 				{
-					if("relation".equals(xpp.getAttributeValue(null, "type")))
+					String type = xpp.getAttributeValue(null, "type");
+					if("relation".equals(type))
 					{
 						throw new UnsupportedOperationException("Parsing relations as relation members is not supported!");
 					}
-					else if("way".equals("type"))
+					else if("way".equals(type))
 					{
 						long ref = Long.valueOf(xpp.getAttributeValue(null, "ref"));
 						String role = xpp.getAttributeValue(null, "role");
@@ -153,6 +153,7 @@ public class JosmCountryBoundariesParser
 			{
 				polygon.inner.add(factory.createLinearRing(osm.getCoordinates(wayId)));
 			}
+			result.add(polygon);
 		}
 		return result;
 	}
@@ -168,7 +169,7 @@ public class JosmCountryBoundariesParser
 			{
 				LinearRing shell = poly.outer.get(0);
 				LinearRing[] holes = poly.inner.toArray(new LinearRing[]{});
-				g = factory.createPolygon(shell, holes);
+				g = creator.createPolygon(shell, holes);
 			}
 			// multipolygons
 			else
@@ -193,13 +194,17 @@ public class JosmCountryBoundariesParser
 						}
 					}
 
-					polygons[i] = factory.createPolygon(shell, holes.toArray(new LinearRing[]{}));
+					polygons[i] = creator.createPolygon(shell, holes.toArray(new LinearRing[]{}));
 				}
 
-				g = factory.createMultiPolygon(polygons);
+				g = creator.createMultiPolygon(polygons);
+				if(g.getNumGeometries() == 1)
+				{
+					g = g.getGeometryN(0);
+				}
 			}
 			g.normalize();
-			g.setUserData(poly.name);
+			g.setUserData(Collections.singletonMap("id", poly.name));
 			geometries.add(g);
 		}
 

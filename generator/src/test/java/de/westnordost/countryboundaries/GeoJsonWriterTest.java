@@ -86,26 +86,44 @@ public class GeoJsonWriterTest
 	@Test public void writePolygon()
 	{
 		Polygon g = factory.createPolygon(
-				factory.createLinearRing(new Coordinate[]{p(0,0), p(4,0), p(0,4), p(0,0)}),
-				new LinearRing[]{factory.createLinearRing(new Coordinate[] {p(1,1), p(1,2), p(2,1), p(1,1)})}
+				factory.createLinearRing(new Coordinate[]{p(0,0), p(0,4), p(4,0), p(0,0)}),
+				new LinearRing[]{factory.createLinearRing(new Coordinate[] {p(1,1), p(2,1), p(1,2), p(1,1)})}
 		);
 		assertEquals("{" +
 				"\"type\":\"Feature\",\"properties\":{}," +
 				"\"geometry\":{\"type\":\"Polygon\"," +
-				"\"coordinates\":[[[0,0],[0,4],[4,0],[0,0]],[[1,1],[2,1],[1,2],[1,1]]]}" +
+				"\"coordinates\":[[[0,0],[4,0],[0,4],[0,0]],[[1,1],[1,2],[2,1],[1,1]]]}" +
 				"}", write(g));
 	}
 
 	@Test public void writeMultiPolygon()
 	{
 		MultiPolygon g = factory.createMultiPolygon(new Polygon[]{
-				factory.createPolygon(new Coordinate[]{p(0, 0), p(4, 0), p(0, 4), p(0, 0)}),
-				factory.createPolygon(new Coordinate[]{p(0, 0), p(1, 0), p(0, 1), p(0, 0)})
+				factory.createPolygon(new Coordinate[]{p(0,0),p(0,4),p(4,0),p(0,0)}),
+				factory.createPolygon(new Coordinate[]{p(0,0),p(0,1),p(1,0),p(0,0)})
 		});
 		assertEquals("{" +
 				"\"type\":\"Feature\",\"properties\":{}," +
 				"\"geometry\":{\"type\":\"MultiPolygon\"," +
-				"\"coordinates\":[[[[0,0],[0,4],[4,0],[0,0]]],[[[0,0],[0,1],[1,0],[0,0]]]]}" +
+				"\"coordinates\":[[[[0,0],[4,0],[0,4],[0,0]]],[[[0,0],[1,0],[0,1],[0,0]]]]}" +
+				"}", write(g));
+	}
+
+	@Test public void writeMultiPolygonWithPolygonWithHole()
+	{
+		MultiPolygon g = factory.createMultiPolygon(new Polygon[]{
+				factory.createPolygon(
+						factory.createLinearRing(new Coordinate[]{p(0,0),p(0,4),p(4,0),p(0,0)}),
+						new LinearRing[]{
+								factory.createLinearRing(new Coordinate[]{p(1,1),p(3,1),p(1,3),p(1,1)})
+						}
+				),
+				factory.createPolygon(new Coordinate[]{p(8,8),p(8,9),p(9,8),p(8,8)})
+		});
+		assertEquals("{" +
+				"\"type\":\"Feature\",\"properties\":{}," +
+				"\"geometry\":{\"type\":\"MultiPolygon\"," +
+				"\"coordinates\":[[[[0,0],[4,0],[0,4],[0,0]],[[1,1],[1,3],[3,1],[1,1]]],[[[8,8],[9,8],[8,9],[8,8]]]]}" +
 				"}", write(g));
 	}
 
@@ -157,6 +175,34 @@ public class GeoJsonWriterTest
 				"\"type\":\"Feature\",\"properties\":{}," +
 				"\"geometry\":{\"type\":\"Point\",\"coordinates\":[5,5]}" +
 				"}", write(g));
+	}
+
+	@Test public void writeFeatureCollectionWithEmptyGeometryCollection()
+	{
+		GeometryCollection g = factory.createGeometryCollection(new Geometry[]{
+				factory.createGeometryCollection(new Geometry[]{})
+		});
+		assertEquals("{\"type\":\"FeatureCollection\",\"features\":[{" +
+				"\"type\":\"Feature\",\"properties\":{}," +
+				"\"geometry\":{\"type\":\"GeometryCollection\",\"geometries\":[]}" +
+				"}]}", write(g));
+	}
+
+	@Test public void writeFeatureCollectionWithGeometryCollection()
+	{
+		GeometryCollection g = factory.createGeometryCollection(new Geometry[]{
+				factory.createGeometryCollection(new Geometry[]{
+						factory.createPoint(p(0,0)),
+						factory.createPoint(p(1,1))
+				})
+		});
+		assertEquals("{\"type\":\"FeatureCollection\",\"features\":[{" +
+				"\"type\":\"Feature\",\"properties\":{}," +
+				"\"geometry\":{\"type\":\"GeometryCollection\",\"geometries\":[" +
+				"{\"type\":\"Point\",\"coordinates\":[0,0]}," +
+				"{\"type\":\"Point\",\"coordinates\":[1,1]}" +
+				"]}" +
+				"}]}", write(g));
 	}
 
 	private static String write(Geometry g)

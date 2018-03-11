@@ -8,22 +8,19 @@ import java.util.Set;
 public class RasterSpatialIndex implements SpatialIndex
 {
 	private final short[] raster;
-	private final int bitmapWidth;
+	private final int rasterWidth;
 	private final QueryResult[] indices;
 
 	public RasterSpatialIndex(short[] raster, int rasterWidth, QueryResult[] indices)
 	{
-		if(indices.length > Short.MAX_VALUE) {
-			throw new IllegalArgumentException("RasterSpatialIndex only supports up to 32768 different indices");
-		}
 		this.raster = raster;
 		this.indices = indices;
-		this.bitmapWidth = rasterWidth;
+		this.rasterWidth = rasterWidth;
 	}
 
 	private QueryResult getPixel(int x, int y)
 	{
-		int index = raster[y * bitmapWidth + x];
+		int index = raster[y * rasterWidth + x];
 		return indices[index];
 	}
 
@@ -42,19 +39,19 @@ public class RasterSpatialIndex implements SpatialIndex
 		if (minLat > maxLat) throw new IllegalArgumentException("maxLat is smaller than minLat");
 
 		int minX = longitudeToPixelX(minLong);
-		int minY = latitudeToPixelY(minLat);
+		int maxY = latitudeToPixelY(minLat);
 		int maxX = longitudeToPixelX(maxLong);
-		int maxY = latitudeToPixelY(maxLat);
+		int minY = latitudeToPixelY(maxLat);
 
 		// might wrap around
-		int stepsX = minX > maxX ? bitmapWidth - minX + maxX : maxX - minX;
+		int stepsX = minX > maxX ? rasterWidth - minX + maxX : maxX - minX;
 
 		Set<String> containingIds = new HashSet<>();
 		Set<String> possiblyContainingIds = new HashSet<>();
 		boolean first = true;
 		for (int xStep = 0; xStep <= stepsX; ++xStep)
 		{
-			int x = (minX + xStep) % bitmapWidth;
+			int x = (minX + xStep) % rasterWidth;
 
 			for (int y = minY; y <= maxY; y++)
 			{
@@ -94,13 +91,19 @@ public class RasterSpatialIndex implements SpatialIndex
 
 	private int longitudeToPixelX(double longitude)
 	{
-		return (int) Math.floor((180 + normalize(longitude, -180, 360)) / 360.0 * bitmapWidth);
+		return (int) Math.min(
+				rasterWidth-1,
+				Math.floor((180 + normalize(longitude, -180, 360)) / 360.0 * rasterWidth)
+		);
 	}
 
 	private int latitudeToPixelY(double latitude)
 	{
-		int bitmapHeight = raster.length / bitmapWidth;
-		return (int) Math.floor((90 - latitude) / 180.0 * bitmapHeight);
+		int rasterHeight = raster.length / rasterWidth;
+		return (int) Math.min(
+				rasterHeight - 1,
+				Math.floor((90 - latitude) / 180.0 * rasterHeight)
+		);
 	}
 
 	private static double normalize(double value, double startAt, double base)
@@ -118,13 +121,32 @@ public class RasterSpatialIndex implements SpatialIndex
 		RasterSpatialIndex that = (RasterSpatialIndex) o;
 
 		return
-				bitmapWidth == that.bitmapWidth
+				rasterWidth == that.rasterWidth
 				&& Arrays.equals(raster, that.raster)
 				&& Arrays.equals(indices, that.indices);
 	}
 
 	@Override public int hashCode()
 	{
-		return bitmapWidth + 31 * (Arrays.hashCode(raster) + 31 * Arrays.hashCode(indices));
+		return rasterWidth + 31 * (Arrays.hashCode(raster) + 31 * Arrays.hashCode(indices));
+	}
+
+	short[] getRaster()
+	{
+		short[] result = new short[raster.length];
+		System.arraycopy( raster, 0, result, 0, raster.length );
+		return result;
+	}
+
+	int getRasterWidth()
+	{
+		return rasterWidth;
+	}
+
+	QueryResult[] getIndices()
+	{
+		QueryResult[] result = new QueryResult[indices.length];
+		System.arraycopy( indices, 0, result, 0, indices.length );
+		return result;
 	}
 }

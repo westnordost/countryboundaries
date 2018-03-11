@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.util.List;
 
 import de.westnordost.countryboundaries.CountryBoundaries;
-import de.westnordost.countryboundaries.CountryBoundariesFactory;
 
 public class MainActivity extends Activity implements MapEventsReceiver
 {
@@ -41,7 +40,7 @@ public class MainActivity extends Activity implements MapEventsReceiver
 
         try
 		{
-			countryBoundaries = new CountryBoundariesFactory().create(
+			countryBoundaries = CountryBoundaries.load(
 					getAssets().open("boundaries.json"),
 					getAssets().open("boundaries_index.json")
 			);

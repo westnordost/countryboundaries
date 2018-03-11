@@ -9,6 +9,8 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.PrecisionModel;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -16,7 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// TODO TEST
 public class CountryBoundaries
 {
 	private static final int WGS84 = 4326;
@@ -26,7 +27,7 @@ public class CountryBoundaries
 	private final SpatialIndex spatialIndex;
 	private final Map<String, Double> geometrySizeCache;
 
-	public CountryBoundaries(GeometryCollection boundaries, SpatialIndex index)
+	CountryBoundaries(GeometryCollection boundaries, SpatialIndex index)
 	{
 		this.spatialIndex = index;
 		geometrySizeCache = new HashMap<>(400);
@@ -44,6 +45,56 @@ public class CountryBoundaries
 		}
 	}
 
+	public static CountryBoundaries load(InputStream boundariesJsonStream, InputStream indicesJsonStream) throws IOException
+	{
+		String boundariesJson = StreamUtils.readToString(boundariesJsonStream);
+		String indicesJson = StreamUtils.readToString(indicesJsonStream);
+
+		GeometryCollection boundaries = (GeometryCollection) new GeoJsonReader().read(boundariesJson);
+
+		transformMapUserDataToStringUserData(boundaries);
+		RasterSpatialIndex index = new RasterSpatialIndexJsonReader().read(indicesJson);
+		return new CountryBoundaries(boundaries, index);
+	}
+
+	private static void transformMapUserDataToStringUserData(GeometryCollection geometries)
+	{
+		for (int i = 0; i < geometries.getNumGeometries(); i++)
+		{
+			Geometry g = geometries.getGeometryN(i);
+			g.setUserData(((Map)g.getUserData()).get("id"));
+		}
+	}
+
+	/** @return whether the given position is in any of the countries with the given ids */
+	public boolean isInAny(double longitude, double latitude, Collection<String> ids)
+	{
+		QueryResult queryResult = spatialIndex.query(longitude, latitude);
+		Collection<String> containingIds = queryResult.getContainingIds();
+		for (String id : ids)
+		{
+			if(containingIds.contains(id)) return true;
+		}
+		Point point = factory.createPoint(new Coordinate(longitude, latitude, 0));
+		Collection<String> intersectingIds = queryResult.getIntersectingIds();
+		for (String id : ids)
+		{
+			if(intersectingIds.contains(id))
+			{
+				Geometry country = geometriesByIds.get(id);
+				if(country != null && country.covers(point)) return true;
+			}
+		}
+		return false;
+	}
+
+	/** @return whether the given position is in the country with the given id */
+	public boolean isIn(double longitude, double latitude, String id)
+	{
+		return isInAny(longitude, latitude, Collections.singleton(id));
+	}
+
+	/** @return the ids of the countries the given position is contained in */
 	public List<String> getIds(double longitude, double latitude)
 	{
 		QueryResult queryResult = spatialIndex.query(longitude, latitude);
@@ -54,15 +105,14 @@ public class CountryBoundaries
 		Collection<String> possibleMatches = queryResult.getIntersectingIds();
 		if (!possibleMatches.isEmpty())
 		{
-			Coordinate coord = new Coordinate(longitude, latitude, 0);
-			Point point = factory.createPoint(coord);
+			Point point = factory.createPoint(new Coordinate(longitude, latitude, 0));
 
-			for (String countryCode : possibleMatches)
+			for (String id : possibleMatches)
 			{
-				Geometry country = geometriesByIds.get(countryCode);
+				Geometry country = geometriesByIds.get(id);
 				if (country != null && country.covers(point))
 				{
-					result.add(countryCode);
+					result.add(id);
 				}
 			}
 		}
@@ -70,13 +120,14 @@ public class CountryBoundaries
 		return result;
 	}
 
+	/** @return the ids of the countries the given bounding box is contained in or intersect with */
 	public QueryResult getIds(double minLongitude, double minLatitude, double maxLongitude, double maxLatitude)
 	{
 		QueryResult queryResult = spatialIndex.query(minLongitude, minLatitude, maxLongitude, maxLatitude);
 
-		List<String> containingCountryCodes = new ArrayList<>();
-		List<String> intersectingCountryCodes = new ArrayList<>();
-		containingCountryCodes.addAll(queryResult.getContainingIds());
+		List<String> containingIds = new ArrayList<>();
+		List<String> intersectingIds = new ArrayList<>();
+		containingIds.addAll(queryResult.getContainingIds());
 
 		Collection<String> possibleMatches = queryResult.getIntersectingIds();
 		if (!possibleMatches.isEmpty())
@@ -90,18 +141,18 @@ public class CountryBoundaries
 					IntersectionMatrix im = country.relate(box);
 					if (im.isCovers())
 					{
-						containingCountryCodes.add(countryCode);
+						containingIds.add(countryCode);
 					} else if (!im.isDisjoint())
 					{
-						intersectingCountryCodes.add(countryCode);
+						intersectingIds.add(countryCode);
 					}
 				}
 			}
 		}
-		Collections.sort(containingCountryCodes, this::compareSize);
-		Collections.sort(intersectingCountryCodes, this::compareSize);
+		Collections.sort(containingIds, this::compareSize);
+		Collections.sort(intersectingIds, this::compareSize);
 
-		return new QueryResult(containingCountryCodes, intersectingCountryCodes);
+		return new QueryResult(containingIds, intersectingIds);
 	}
 
 	private double getSize(String isoCode)

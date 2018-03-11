@@ -38,7 +38,8 @@ public class GeoJsonReader
 			GEOMETRY = "geometry",
 			PROPERTIES = "properties";
 
-	private final GeometryFactory factory;
+	private final GeometryFactory factory = new GeometryFactory(new PrecisionModel(), WGS84);
+	private final OgcSfsCompliantPolygonCreator polygonCreator;
 
 	public GeoJsonReader()
 	{
@@ -47,9 +48,7 @@ public class GeoJsonReader
 
 	public GeoJsonReader(boolean ensureOgcSfsCompliancy)
 	{
-		factory = ensureOgcSfsCompliancy ?
-				new ConvertToOgcSfsCompliantGeometryFactory(new PrecisionModel(), WGS84) :
-				new GeometryFactory(new PrecisionModel(), WGS84);
+		polygonCreator = ensureOgcSfsCompliancy ? new OgcSfsCompliantPolygonCreator(factory) : null;
 	}
 
 	public Geometry read(String string)
@@ -160,12 +159,17 @@ public class GeoJsonReader
 		return factory.createGeometryCollection(result);
 	}
 
-	private MultiPolygon createMultiPolygon(JSONArray coords) throws JSONException
+	private Geometry createMultiPolygon(JSONArray coords) throws JSONException
 	{
 		Polygon[] polygons = new Polygon[coords.length()];
 		for (int i = 0; i < coords.length(); i++)
 		{
 			polygons[i] = createPolygon(coords.getJSONArray(i));
+		}
+		if(polygonCreator != null)
+		{
+			MultiPolygon result = polygonCreator.createMultiPolygon(polygons);
+			return result.getNumGeometries() == 1 ? result.getGeometryN(0) : result;
 		}
 		return factory.createMultiPolygon(polygons);
 	}
@@ -185,7 +189,9 @@ public class GeoJsonReader
 			System.arraycopy(linearRings, 1, holes, 0, linearRings.length - 1);
 		}
 
-		Polygon polygon = factory.createPolygon(shell, holes);
+		Polygon polygon = polygonCreator != null ?
+				polygonCreator.createPolygon(shell, holes) :
+				factory.createPolygon(shell, holes);
 		/* in JTS, outer shells are clockwise but in GeoJSON it is specified to be the other way
 		   round. This reader is forgiving: It does not care about the direction, it will just
 		   reorder if necessary (part of normalize) */
