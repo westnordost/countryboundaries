@@ -11,7 +11,7 @@ The default data used is derived from OpenStreetMap and thus © OpenStreetMap co
 
 ## Usage
 
-Add [`de.westnordost:countryboundaries:1.0`](https://maven-repository.com/artifact/de.westnordost/countryboundaries/1.0) as a Maven dependency or download the jar from there.
+Add [`de.westnordost:countryboundaries:1.1`](https://maven-repository.com/artifact/de.westnordost/countryboundaries/1.1) as a Maven dependency or download the jar from there.
 
 ```java
 // load data. You should do this once and use CountryBoundaries as a singleton.
