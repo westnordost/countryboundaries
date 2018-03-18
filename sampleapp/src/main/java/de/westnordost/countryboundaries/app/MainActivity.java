@@ -16,6 +16,7 @@ import org.osmdroid.views.overlay.MapEventsOverlay;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 import de.westnordost.countryboundaries.CountryBoundaries;
 
@@ -40,10 +41,12 @@ public class MainActivity extends Activity implements MapEventsReceiver
 
         try
 		{
-			countryBoundaries = CountryBoundaries.load(
-					getAssets().open("boundaries.json"),
-					getAssets().open("boundaries_index.json")
-			);
+			long t = System.currentTimeMillis();
+			countryBoundaries = CountryBoundaries.load(getAssets().open("boundaries120x120.ser"));
+
+			t = System.currentTimeMillis() - t;
+			Toast.makeText(this, "Loading took " + t + "ms", Toast.LENGTH_SHORT).show();
+
 		} catch (IOException e)
 		{
 			throw new RuntimeException(e);
@@ -61,11 +64,10 @@ public class MainActivity extends Activity implements MapEventsReceiver
     @Override
     public boolean singleTapConfirmedHelper(GeoPoint p)
 	{
-		long t = System.currentTimeMillis();
-		List<String> isoCodes = countryBoundaries.getIds(p.getLongitude(), p.getLatitude());
-		t = System.currentTimeMillis() - t;
-        Toast.makeText(this, TextUtils.join(",",isoCodes) + " (in " + t + "ms)",
-                Toast.LENGTH_SHORT).show();
+		long t = System.nanoTime();
+		List<String> ids = countryBoundaries.getIds(p.getLongitude(), p.getLatitude());
+		t = System.nanoTime() - t;
+        Toast.makeText(this, getToastString(ids) + "\n(in " + String.format(Locale.US, "%.3f", (double)t/1000/1000)+ "ms)", Toast.LENGTH_SHORT).show();
         return true;
     }
 
@@ -97,4 +99,13 @@ public class MainActivity extends Activity implements MapEventsReceiver
         mapView.getController().setZoom(3);
         setContentView(mapView);
     }
+
+	private static String getToastString(List<String> ids)
+	{
+		if(ids.isEmpty())
+		{
+			return "is nowhere";
+		}
+		return "is in " + TextUtils.join(", ",ids);
+	}
 }

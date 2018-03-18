@@ -192,7 +192,7 @@ public class GeoJsonWriter
 		return (Polygon) r.reverse();
 	}
 
-	private void writeMultiCoordinates(JSONStringer b, Geometry g) throws JSONException
+	private void writeMultiCoordinates(JSONStringer b, Geometry g)
 	{
 		b.array();
 		for (int i = 0; i < g.getNumGeometries(); i++)
@@ -202,7 +202,7 @@ public class GeoJsonWriter
 		b.endArray();
 	}
 
-	private void writeMultiPolygon(JSONStringer b, MultiPolygon mp) throws JSONException
+	private void writeMultiPolygon(JSONStringer b, MultiPolygon mp)
 	{
 		b.array();
 		for (int i = 0; i < mp.getNumGeometries(); i++)
@@ -212,7 +212,7 @@ public class GeoJsonWriter
 		b.endArray();
 	}
 
-	private void writePolygon(JSONStringer b, Polygon p) throws JSONException
+	private void writePolygon(JSONStringer b, Polygon p)
 	{
 		b.array();
 		writeCoordinates(b, p.getExteriorRing().getCoordinates());
@@ -223,7 +223,7 @@ public class GeoJsonWriter
 		b.endArray();
 	}
 
-	private void writeCoordinates(JSONStringer b, Coordinate[] coords) throws JSONException
+	private void writeCoordinates(JSONStringer b, Coordinate[] coords)
 	{
 		b.array();
 		for (Coordinate coord : coords)
@@ -233,7 +233,7 @@ public class GeoJsonWriter
 		b.endArray();
 	}
 
-	private void writeCoordinate(JSONStringer b, Coordinate coord) throws JSONException
+	private void writeCoordinate(JSONStringer b, Coordinate coord)
 	{
 		b.array().value(coord.x).value(coord.y);
 		if (!Double.isNaN(coord.z)) b.value(coord.z);

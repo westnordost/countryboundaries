@@ -1,169 +1,112 @@
 package de.westnordost.countryboundaries;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.IntersectionMatrix;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.PrecisionModel;
-
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class CountryBoundaries
 {
-	private static final int WGS84 = 4326;
+	private final CountryBoundariesCell[] raster;
+	private final int rasterWidth;
+	private final Map<String, Double> geometrySizes;
 
-	private final GeometryFactory factory = new GeometryFactory(new PrecisionModel(), WGS84);
-	private final Map<String, Geometry> geometriesByIds;
-	private final SpatialIndex spatialIndex;
-	private final Map<String, Double> geometrySizeCache;
-
-	CountryBoundaries(GeometryCollection boundaries, SpatialIndex index)
+	CountryBoundaries(
+			CountryBoundariesCell[] raster, int rasterWidth, Map<String, Double> geometrySizes)
 	{
-		this.spatialIndex = index;
-		geometrySizeCache = new HashMap<>(400);
-		geometriesByIds = new HashMap<>(400);
-
-		for (int i = 0; i < boundaries.getNumGeometries(); ++i)
-		{
-			Geometry countryBoundary = boundaries.getGeometryN(i);
-
-			Object userData = countryBoundary.getUserData();
-			if(userData != null && userData instanceof String)
-			{
-				geometriesByIds.put((String) userData, countryBoundary);
-			}
-		}
+		this.raster = raster;
+		this.rasterWidth = rasterWidth;
+		this.geometrySizes = geometrySizes;
 	}
 
-	public static CountryBoundaries load(InputStream boundariesJsonStream, InputStream indicesJsonStream) throws IOException
+	public static CountryBoundaries load(InputStream is) throws IOException
 	{
-		String boundariesJson = StreamUtils.readToString(boundariesJsonStream);
-		String indicesJson = StreamUtils.readToString(indicesJsonStream);
-
-		GeometryCollection boundaries = (GeometryCollection) new GeoJsonReader().read(boundariesJson);
-
-		transformMapUserDataToStringUserData(boundaries);
-		RasterSpatialIndex index = new RasterSpatialIndexJsonReader().read(indicesJson);
-		return new CountryBoundaries(boundaries, index);
+		return read(new ObjectInputStream(is));
 	}
 
-	private static void transformMapUserDataToStringUserData(GeometryCollection geometries)
-	{
-		for (int i = 0; i < geometries.getNumGeometries(); i++)
-		{
-			Geometry g = geometries.getGeometryN(i);
-			g.setUserData(((Map)g.getUserData()).get("id"));
-		}
-	}
-
-	/** @return whether the given position is in any of the countries with the given ids */
-	public boolean isInAny(double longitude, double latitude, Collection<String> ids)
-	{
-		QueryResult queryResult = spatialIndex.query(longitude, latitude);
-		Collection<String> containingIds = queryResult.getContainingIds();
-		for (String id : ids)
-		{
-			if(containingIds.contains(id)) return true;
-		}
-		Point point = factory.createPoint(new Coordinate(longitude, latitude, 0));
-		Collection<String> intersectingIds = queryResult.getIntersectingIds();
-		for (String id : ids)
-		{
-			if(intersectingIds.contains(id))
-			{
-				Geometry country = geometriesByIds.get(id);
-				if(country != null && country.covers(point)) return true;
-			}
-		}
-		return false;
-	}
-
-	/** @return whether the given position is in the country with the given id */
-	public boolean isIn(double longitude, double latitude, String id)
-	{
-		return isInAny(longitude, latitude, Collections.singleton(id));
-	}
-
-	/** @return the ids of the countries the given position is contained in */
+	/** @return the ids of the countries the given position is contained in, ordered by size ascending */
 	public List<String> getIds(double longitude, double latitude)
 	{
-		QueryResult queryResult = spatialIndex.query(longitude, latitude);
-
-		List<String> result = new ArrayList<>();
-		result.addAll(queryResult.getContainingIds());
-
-		Collection<String> possibleMatches = queryResult.getIntersectingIds();
-		if (!possibleMatches.isEmpty())
-		{
-			Point point = factory.createPoint(new Coordinate(longitude, latitude, 0));
-
-			for (String id : possibleMatches)
-			{
-				Geometry country = geometriesByIds.get(id);
-				if (country != null && country.covers(point))
-				{
-					result.add(id);
-				}
-			}
-		}
+		List<String> result = getCell(longitude, latitude).getIds(longitude, latitude);
 		Collections.sort(result, this::compareSize);
 		return result;
 	}
 
-	/** @return the ids of the countries the given bounding box is contained in or intersect with */
-	public QueryResult getIds(double minLongitude, double minLatitude, double maxLongitude, double maxLatitude)
+	/** @return the ids of the countries the given bounding box intersects with (not in any particular order) */
+	public Set<String> getIds(
+			double minLongitude, double minLatitude, double maxLongitude, double maxLatitude)
 	{
-		QueryResult queryResult = spatialIndex.query(minLongitude, minLatitude, maxLongitude, maxLatitude);
+		if (minLatitude < -90 || minLatitude > 90)
+			throw new IllegalArgumentException("minLatitude is out of bounds");
+		if (maxLatitude < -90 || maxLatitude > 90)
+			throw new IllegalArgumentException("maxLatitude is out of bounds");
+		if (minLatitude > maxLatitude)
+			throw new IllegalArgumentException("maxLatitude is smaller than minLatitude");
 
-		List<String> containingIds = new ArrayList<>();
-		List<String> intersectingIds = new ArrayList<>();
-		containingIds.addAll(queryResult.getContainingIds());
+		int minX = longitudeToCellX(minLongitude);
+		int maxY = latitudeToCellY(minLatitude);
+		int maxX = longitudeToCellX(maxLongitude);
+		int minY = latitudeToCellY(maxLatitude);
 
-		Collection<String> possibleMatches = queryResult.getIntersectingIds();
-		if (!possibleMatches.isEmpty())
+		// might wrap around
+		int stepsX = minX > maxX ? rasterWidth - minX + maxX : maxX - minX;
+
+		Set<String> ids = new HashSet<>();
+		for (int xStep = 0; xStep <= stepsX; ++xStep)
 		{
-			Polygon box = createBounds(minLongitude, minLatitude, maxLongitude, maxLatitude);
-			for (String countryCode : possibleMatches)
+			int x = (minX + xStep) % rasterWidth;
+			for (int y = minY; y <= maxY; y++)
 			{
-				Geometry country = geometriesByIds.get(countryCode);
-				if (country != null)
-				{
-					IntersectionMatrix im = country.relate(box);
-					if (im.isCovers())
-					{
-						containingIds.add(countryCode);
-					} else if (!im.isDisjoint())
-					{
-						intersectingIds.add(countryCode);
-					}
-				}
+				CountryBoundariesCell cell = raster[y * rasterWidth + x];
+				ids.addAll(cell.getAllIds());
 			}
 		}
-		Collections.sort(containingIds, this::compareSize);
-		Collections.sort(intersectingIds, this::compareSize);
-
-		return new QueryResult(containingIds, intersectingIds);
+		return ids;
 	}
 
-	private double getSize(String isoCode)
+	private CountryBoundariesCell getCell(double longitude, double latitude)
 	{
-		if (!geometrySizeCache.containsKey(isoCode))
-		{
-			Geometry country = geometriesByIds.get(isoCode);
-			if (country == null) return 0;
-			geometrySizeCache.put(isoCode, country.getArea());
-		}
-		return geometrySizeCache.get(isoCode);
+		if (latitude < -90 || latitude > 90) throw new IllegalArgumentException("latitude is out of bounds");
+		int x = longitudeToCellX(longitude);
+		int y = latitudeToCellY(latitude);
+		return raster[y * rasterWidth + x];
+	}
+
+	private int longitudeToCellX(double longitude)
+	{
+		return (int) Math.min(
+				rasterWidth-1,
+				Math.floor((180 + normalize(longitude, -180, 360)) / 360.0 * rasterWidth)
+		);
+	}
+
+	private int latitudeToCellY(double latitude)
+	{
+		int rasterHeight = raster.length / rasterWidth;
+		return (int) Math.min(
+				rasterHeight - 1,
+				Math.floor((90 - latitude) / 180.0 * rasterHeight)
+		);
+	}
+
+	private static double normalize(double value, double startAt, double base)
+	{
+		while (value < startAt) value += base;
+		while (value > startAt + base) value -= base;
+		return value;
+	}
+
+	private double getSize(String id)
+	{
+		Double size = geometrySizes.get(id);
+		return size != null ? size : 0;
 	}
 
 	private int compareSize(String isoCode1, String isoCode2)
@@ -171,15 +114,55 @@ public class CountryBoundaries
 		return (int) (getSize(isoCode1) - getSize(isoCode2));
 	}
 
-	private Polygon createBounds(double minLong, double minLat, double matLong, double maxLat)
+	@Override public boolean equals(Object o)
 	{
-		return factory.createPolygon(new Coordinate[]
-				{
-						new Coordinate(minLong, minLat),
-						new Coordinate(matLong, minLat),
-						new Coordinate(matLong, maxLat),
-						new Coordinate(minLong, maxLat),
-						new Coordinate(minLong, minLat)
-				});
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		CountryBoundaries that = (CountryBoundaries) o;
+
+		return
+				rasterWidth == that.rasterWidth
+						&& Arrays.equals(raster, that.raster)
+						&& geometrySizes.equals(that.geometrySizes);
+	}
+
+	@Override public int hashCode()
+	{
+		return rasterWidth + 31 * (Arrays.hashCode(raster) + 31 * geometrySizes.hashCode());
+	}
+
+	void write(ObjectOutputStream out) throws IOException
+	{
+		out.writeInt(geometrySizes.size());
+		for (Map.Entry<String, Double> e : geometrySizes.entrySet())
+		{
+			out.writeUTF(e.getKey());
+			out.writeDouble(e.getValue());
+		}
+		out.writeInt(rasterWidth);
+		out.writeInt(raster.length);
+		for (int c = 0; c < raster.length; c++)
+		{
+			raster[c].write(out);
+		}
+	}
+
+	static CountryBoundaries read(ObjectInputStream in) throws IOException
+	{
+		int geometrySizesCount = in.readInt();
+		Map<String, Double> geometrySizes = new HashMap<>(geometrySizesCount);
+		for (int i = 0; i < geometrySizesCount; i++)
+		{
+			geometrySizes.put(in.readUTF().intern(), in.readDouble());
+		}
+		int rasterWidth = in.readInt();
+		int rasterSize = in.readInt();
+		CountryBoundariesCell[] raster = new CountryBoundariesCell[rasterSize];
+		for (int i= 0; i < rasterSize; i++)
+		{
+			raster[i] = CountryBoundariesCell.read(in);
+		}
+		return new CountryBoundaries(raster, rasterWidth, geometrySizes);
 	}
 }

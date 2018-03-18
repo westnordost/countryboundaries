@@ -1,5 +1,8 @@
 package de.westnordost.countryboundaries;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONArray;
@@ -82,7 +85,7 @@ public class GeoJsonReader
 		else if(object instanceof JSONObject)
 		{
 			JSONObject properties = (JSONObject) object;
-			Map map = properties.toMap();
+			Map map = toMap(properties);
 			if(map.isEmpty()) map = null;
 			return map;
 		}
@@ -90,6 +93,50 @@ public class GeoJsonReader
 		{
 			throw new GeoJsonException("The \"properties\" member must be an object");
 		}
+	}
+
+	private static Map<String, Object> toMap(JSONObject obj)
+	{
+		Map<String, Object> results = new HashMap<>();
+		for (String key : obj.keySet())
+		{
+			Object value = obj.get(key);
+			if (value == null || JSONObject.NULL.equals(value))
+			{
+				value = null;
+			} else if (value instanceof JSONObject)
+			{
+				value = toMap((JSONObject) value);
+			} else if (value instanceof JSONArray)
+			{
+				value = toList((JSONArray) value);
+			}
+			results.put(key, value);
+		}
+		return results;
+	}
+
+	private static List<Object> toList(JSONArray arr)
+	{
+		List<Object> results = new ArrayList<>(arr.length());
+		for (int i = 0; i<arr.length(); ++i)
+		{
+			Object element = arr.get(i);
+			if (element == null || JSONObject.NULL.equals(element))
+			{
+				results.add(null);
+			} else if (element instanceof JSONArray)
+			{
+				results.add(toList((JSONArray) element));
+			} else if (element instanceof JSONObject)
+			{
+				results.add(toMap((JSONObject) element));
+			} else
+				{
+				results.add(element);
+			}
+		}
+		return results;
 	}
 
 	private Geometry[] createFeatures(JSONArray features) throws JSONException
