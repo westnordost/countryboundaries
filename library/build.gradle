@@ -1,8 +1,77 @@
 apply plugin: 'java-library'
+apply plugin: 'maven'
+apply plugin: 'signing'
 
 dependencies {
     testImplementation 'junit:junit:4.12'
 }
 
+group = "de.westnordost"
+archivesBaseName = "countryboundaries"
+version = 1.0
+
 sourceCompatibility = "1.8"
 targetCompatibility = "1.8"
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name 'countryboundaries'
+                packaging 'jar'
+                description 'Java library to enable fast offline reverse country geocoding: ' +
+                        'Find out the country / state in which a geo position is located.'
+                url 'https://github.com/westnordost/countryboundaries'
+
+                scm {
+                    connection 'https://github.com/westnordost/countryboundaries.git'
+                    developerConnection 'https://github.com/westnordost/countryboundaries.gitt'
+                    url 'https://github.com/westnordost/countryboundaries'
+                }
+
+                licenses {
+                    license {
+                        name 'GNU Lesser General Public License, Version 3.0'
+                        url 'http://www.gnu.org/licenses/lgpl-3.0.html'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'westnordost'
+                        name 'Tobias Zwick'
+                        email 'osm@westnordost.de'
+                    }
+                }
+            }
+        }
+    }
+}
