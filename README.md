@@ -14,7 +14,7 @@ The default data used is derived from OpenStreetMap and thus © OpenStreetMap co
 Add [`de.westnordost:countryboundaries:1.0`](https://maven-repository.com/artifact/de.westnordost/countryboundaries/1.0) as a Maven dependency or download the jar from there.
 
 ```java
-// load data
+// load data. You should do this once and use CountryBoundaries as a singleton.
 CountryBoundaries boundaries = CountryBoundaries.load(new FileInputStream("boundaries.ser"));
 	
 // get country ids
@@ -25,7 +25,7 @@ The default data file is in `/data/`. Don't forget to give attribution when dist
 
 ## Speed
 
-With the default data set, you can expect each call to take something between 0.1 to 0.5 ms - tested on my Sony Xperia Z1 Compact (from 2014). What makes it that fast is that the boundaries are split up into a raster. In the default data, I used a raster of 120x180 (= one cell is 2° in longitude, 1° in latitude).
+With the default data set, you can expect each call to take something between 0.1 to 0.5 ms and loading the data to take about 1 second - tested on my Sony Xperia Z1 Compact (from 2014). What makes it that fast is that the boundaries are split up into a raster. In the default data, I used a raster of 180x180 (= one cell is 2° in longitude, 1° in latitude).
 If you need it even faster (down to below 0.1 ms), you need to import the data set into a bigger raster, see below. The bigger the raster, the larger the file, of course.
 
 ## Data
