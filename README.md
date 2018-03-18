@@ -14,11 +14,11 @@ The default data used is derived from OpenStreetMap and thus © OpenStreetMap co
 Add [`de.westnordost:countryboundaries:1.0`](https://maven-repository.com/artifact/de.westnordost/countryboundaries/1.0) as a Maven dependency or download the jar from there.
 
 ```java
-	// load data
-	CountryBoundaries boundaries = CountryBoundaries.load(new FileInputStream("boundaries.ser"));
+// load data
+CountryBoundaries boundaries = CountryBoundaries.load(new FileInputStream("boundaries.ser"));
 	
-	// get country ids
-	boundaries.getIds(-96.7954, 32.7816); // returns "US-TX","US"
+// get country ids
+boundaries.getIds(-96.7954, 32.7816); // returns "US-TX","US"
 ```
 
 The default data file is in `/data/`. Don't forget to give attribution when distributing it.
