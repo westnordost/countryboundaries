@@ -60,6 +60,35 @@ public class CountryBoundaries
 		return result;
 	}
 
+	/** Identify which countries are guaranteed to contain the given bounding box fully.
+	 *  The given bounding box may wrap around the 180th longitude, i.e minLongitude = 170 and
+	 *  maxLongitude = -170.
+	 *
+	 *  @param minLongitude minimum longitude of geo position (-180...180)
+	 *  @param minLatitude minimum latitude of geo position (-90...90)
+	 *  @param maxLongitude maximum longitude of geo position (-180...180)
+	 *  @param maxLatitude maximum latitude of geo position (-90...90)
+	 *
+	 *  @return the ids of the countries the given bounding box is guaranteed to be contained in,
+	 *          not in any particular order */
+	public Set<String> getContainingIds(
+			double minLongitude, double minLatitude, double maxLongitude, double maxLatitude)
+	{
+		Set<String> ids = new HashSet<>();
+		forCellsIn(minLongitude, minLatitude, maxLongitude, maxLatitude, cell ->
+		{
+			if(ids.isEmpty())
+			{
+				ids.addAll(cell.getContainingIds());
+			}
+			else
+			{
+				ids.retainAll(cell.getContainingIds());
+			}
+		});
+		return ids;
+	}
+
 	/** Identify which countries intersect with the given bounding box. The given bounding box may
 	 *  wrap around the 180th longitude, i.e minLongitude = 170 and maxLongitude = -170.
 	 *
@@ -70,8 +99,20 @@ public class CountryBoundaries
 	 *
 	 *  @return the ids of the countries the given bounding box intersects with, not in any
 	 *  particular order */
-	public Set<String> getIds(
+	public Set<String> getIntersectingIds(
 			double minLongitude, double minLatitude, double maxLongitude, double maxLatitude)
+	{
+		Set<String> ids = new HashSet<>();
+		forCellsIn(minLongitude, minLatitude, maxLongitude, maxLatitude, cell ->
+		{
+			ids.addAll(cell.getAllIds());
+		});
+		return ids;
+	}
+
+	private void forCellsIn(
+			double minLongitude, double minLatitude, double maxLongitude, double maxLatitude,
+			CellRunnable runnable)
 	{
 		if (minLatitude < -90 || minLatitude > 90)
 			throw new IllegalArgumentException("minLatitude is out of bounds");
@@ -88,17 +129,19 @@ public class CountryBoundaries
 		// might wrap around
 		int stepsX = minX > maxX ? rasterWidth - minX + maxX : maxX - minX;
 
-		Set<String> ids = new HashSet<>();
 		for (int xStep = 0; xStep <= stepsX; ++xStep)
 		{
 			int x = (minX + xStep) % rasterWidth;
 			for (int y = minY; y <= maxY; y++)
 			{
-				CountryBoundariesCell cell = raster[y * rasterWidth + x];
-				ids.addAll(cell.getAllIds());
+				runnable.run(raster[y * rasterWidth + x]);
 			}
 		}
-		return ids;
+	}
+
+	private interface CellRunnable
+	{
+		void run(CountryBoundariesCell cell);
 	}
 
 	private CountryBoundariesCell getCell(double longitude, double latitude)

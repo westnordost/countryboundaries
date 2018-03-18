@@ -69,7 +69,7 @@ public class CountryBoundariesTest
 		assertEquals(Arrays.asList("A","B","C","D"),boundaries.getIds(1,1));
 	}
 
-	@Test public void getIdsInBBoxIsMergedCorrectly()
+	@Test public void getIntersectingIdsInBBoxIsMergedCorrectly()
 	{
 		CountryBoundaries boundaries = new CountryBoundaries(cells(
 				cell(new String[] {"A"}, null),
@@ -78,20 +78,60 @@ public class CountryBoundariesTest
 				cell(new String[] {"D"}, null)
 		), 2, Collections.emptyMap());
 
-		assertTrue(boundaries.getIds(-10,-10,10,10).containsAll(
+		assertTrue(boundaries.getIntersectingIds(-10,-10,10,10).containsAll(
 				Arrays.asList("A","B","C","D")
 		));
 	}
 
-	@Test public void getIdsInBBoxWrapsLongitudeCorrectly()
+	@Test public void getIntersectingIdsInBBoxWrapsLongitudeCorrectly()
 	{
 		CountryBoundaries boundaries = new CountryBoundaries(cells(
 				cell(new String[] {"A"}, null),
 				cell(new String[] {"B"}, null)
 		), 2, Collections.emptyMap());
 
-		assertTrue(boundaries.getIds(170,0,-170,1).containsAll(
+		assertTrue(boundaries.getIntersectingIds(170,0,-170,1).containsAll(
 				Arrays.asList("A","B")
+		));
+	}
+
+	@Test public void getContainingIdsInBBoxWrapsLongitudeCorrectly()
+	{
+		CountryBoundaries boundaries = new CountryBoundaries(cells(
+				cell(new String[] {"A","B","C"}, null),
+				cell(new String[] {"A","B"}, null)
+		), 2, Collections.emptyMap());
+
+		assertTrue(boundaries.getContainingIds(170,0,-170,1).containsAll(
+				Arrays.asList("A","B")
+		));
+	}
+
+	@Test public void geContainingIdsInBBoxIsMergedCorrectly()
+	{
+		CountryBoundaries boundaries = new CountryBoundaries(cells(
+				cell(new String[] {"A","B"}, null),
+				cell(new String[] {"B","A"}, null),
+				cell(new String[] {"C","B","A"}, null),
+				cell(new String[] {"D","A"}, null)
+		), 2, Collections.emptyMap());
+
+		assertTrue(boundaries.getContainingIds(-10,-10,10,10).containsAll(
+				Arrays.asList("A")
+		));
+	}
+
+	@Test public void geContainingIdsInBBoxIsMergedCorrectlyAnNothingIsLeft()
+	{
+		CountryBoundaries boundaries = new CountryBoundaries(cells(
+				cell(new String[] {"A"}, null),
+				cell(new String[] {"B"}, null),
+				cell(new String[] {"C"}, null),
+				cell(new String[] {"D"}, null)
+		), 2, Collections.emptyMap());
+
+		assertTrue(boundaries.getContainingIds(-10,-10,10,10).containsAll(
+				Arrays.asList()
 		));
 	}
 

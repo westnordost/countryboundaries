@@ -59,6 +59,11 @@ class CountryBoundariesCell
 		return result;
 	}
 
+	Collection<String> getContainingIds()
+	{
+		return containingIds;
+	}
+
 	Collection<String> getAllIds()
 	{
 		Collection<String> result = new ArrayList<>(containingIds.size() + intersectingCountries.size());
