@@ -17,8 +17,17 @@ Add [`de.westnordost:countryboundaries:1.2`](https://maven-repository.com/artifa
 // load data. You should do this once and use CountryBoundaries as a singleton.
 CountryBoundaries boundaries = CountryBoundaries.load(new FileInputStream("boundaries.ser"));
 	
-// get country ids
+// get country ids as position
 boundaries.getIds(-96.7954, 32.7816); // returns "US-TX","US"
+
+// check if a position is in a country
+boundaries.isIn(8.6910, 47.6973, "DE"); // returns true
+
+// get which country ids can be found within the given bounding box
+getIntersectingIds(5.9865, 50.7679, 6.0599, 50.7358) // returns "DE", "BE", "NL, "EU"
+
+// get which country ids completely cover the given bounding box
+getContainingIds(5.9865, 50.7679, 6.0599, 50.7358) // returns only "EU"
 ```
 
 The default data file is in `/data/`. Don't forget to give attribution when distributing it.
