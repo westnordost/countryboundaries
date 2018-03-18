@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,7 +32,27 @@ public class CountryBoundaries
 		return read(new ObjectInputStream(is));
 	}
 
-	/** @return the ids of the countries the given position is contained in, ordered by size ascending */
+	/** @param longitude longitude of geo position (-180...180)
+	 *  @param latitude latitude of geo position (-90...90)
+	 *  @param ids ids of the countries to look for
+	 *  @return whether the given position is in any of the countries with the given ids */
+	public boolean isInAny(double longitude, double latitude, Collection<String> ids)
+	{
+		return getCell(longitude, latitude).isInAny(longitude, latitude, ids);
+	}
+
+	/** @param longitude longitude of geo position (-180...180)
+	 *  @param latitude latitude of geo position (-90...90)
+	 *  @param id ids of the country to look for
+	 *  @return whether the given position is in the country with the given id */
+	public boolean isIn(double longitude, double latitude, String id)
+	{
+		return isInAny(longitude, latitude, Collections.singleton(id));
+	}
+
+	/** @param longitude longitude of geo position (-180...180)
+	 *  @param latitude latitude of geo position (-90...90)
+	 *  @return the ids of the countries the given position is contained in, ordered by size ascending */
 	public List<String> getIds(double longitude, double latitude)
 	{
 		List<String> result = getCell(longitude, latitude).getIds(longitude, latitude);
@@ -39,7 +60,16 @@ public class CountryBoundaries
 		return result;
 	}
 
-	/** @return the ids of the countries the given bounding box intersects with (not in any particular order) */
+	/** Identify which countries intersect with the given bounding box. The given bounding box may
+	 *  wrap around the 180th longitude, i.e minLongitude = 170 and maxLongitude = -170.
+	 *
+	 *  @param minLongitude minimum longitude of geo position (-180...180)
+	 *  @param minLatitude minimum latitude of geo position (-90...90)
+	 *  @param maxLongitude maximum longitude of geo position (-180...180)
+	 *  @param maxLatitude maximum latitude of geo position (-90...90)
+	 *
+	 *  @return the ids of the countries the given bounding box intersects with, not in any
+	 *  particular order */
 	public Set<String> getIds(
 			double minLongitude, double minLatitude, double maxLongitude, double maxLatitude)
 	{

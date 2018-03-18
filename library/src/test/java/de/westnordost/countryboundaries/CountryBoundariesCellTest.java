@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class CountryBoundariesCellTest
 {
@@ -31,7 +33,7 @@ public class CountryBoundariesCellTest
 		);
 	}
 
-	@Test public void dontgetOutOfGeometryIds()
+	@Test public void dontGetOutOfGeometryIds()
 	{
 		assertEquals(
 			Collections.emptyList(),
@@ -53,6 +55,26 @@ public class CountryBoundariesCellTest
 			Arrays.asList("A","B"),
 			cell(new String[]{"A"},B).getAllIds()
 		);
+	}
+
+	@Test public void isInAnyDefinitely()
+	{
+		assertTrue(cell(new String[]{"A"},null).isInAny(0,0,Arrays.asList("B","A")));
+	}
+
+	@Test public void isInAnyDefinitelyNot()
+	{
+		assertFalse(cell(new String[]{"A"},null).isInAny(0,0,Arrays.asList("B")));
+	}
+
+	@Test public void isInAnyInGeometry()
+	{
+		assertTrue(cell(null, B).isInAny(1,1,Arrays.asList("B")));
+	}
+
+	@Test public void isInAnyOutOfGeometry()
+	{
+		assertFalse(cell(null, B).isInAny(4,4,Arrays.asList("B")));
 	}
 
 	/* Helpers */

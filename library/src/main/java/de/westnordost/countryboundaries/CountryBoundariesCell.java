@@ -23,6 +23,23 @@ class CountryBoundariesCell
 		this.intersectingCountries = intersectingCountries;
 	}
 
+	boolean isInAny(double longitude, double latitude, Collection<String> ids)
+	{
+		for (String id : containingIds)
+		{
+			if(ids.contains(id)) return true;
+		}
+		Point point = new Point(Fixed1E7.doubleToFixed(longitude), Fixed1E7.doubleToFixed(latitude));
+		for (CountryAreas areas : intersectingCountries)
+		{
+			if(ids.contains(areas.id))
+			{
+				if(areas.covers(point)) return true;
+			}
+		}
+		return false;
+	}
+
 	List<String> getIds(double longitude, double latitude)
 	{
 		List<String> result = new ArrayList<>(containingIds.size());
