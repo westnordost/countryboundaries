@@ -42,7 +42,7 @@ public class MainActivity extends Activity implements MapEventsReceiver
         try
 		{
 			long t = System.currentTimeMillis();
-			countryBoundaries = CountryBoundaries.load(getAssets().open("boundaries120x120.ser"));
+			countryBoundaries = CountryBoundaries.load(getAssets().open("boundaries.ser"));
 
 			t = System.currentTimeMillis() - t;
 			Toast.makeText(this, "Loading took " + t + "ms", Toast.LENGTH_SHORT).show();
