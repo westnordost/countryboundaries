@@ -4,6 +4,8 @@ Java library to enable fast offline reverse country geocoding: Find out the coun
 
 It is well tested, does not have any dependencies, works well on Android and most importantly, is very fast.
 
+Requires Java 8.
+
 ## Copyright and License
 
 © 2018 Tobias Zwick. This library is released under the terms of the [GNU Lesser General Public License](http://www.gnu.org/licenses/lgpl-3.0.html) (LGPL).
