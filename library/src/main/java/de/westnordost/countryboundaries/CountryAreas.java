@@ -115,14 +115,25 @@ class CountryAreas
 
 	private static boolean isPointInPolygon(Point p, Point[] v )
 	{
-		boolean c = false;
-		for (int i = 0, j = v.length-1; i < v.length; j = i++) {
-			if ( (v[i].y > p.y) != (v[j].y > p.y) ) {
-				double vt = (double)(p.y  - v[i].y) / (v[j].y - v[i].y);
-				if (p.x < v[i].x + vt * (v[j].x - v[i].x))
-					c = !c;
+		int wn = 0;
+		for (int j = 0, i = v.length-1; j < v.length; i = j++) {
+			if (v[i].y <= p.y) {
+				if(v[j].y > p.y) {
+					if (isLeft(v[i],v[j],p) > 0)
+						++wn;
+				}
+			} else {
+				if(v[j].y <= p.y) {
+					if (isLeft(v[i],v[j],p) < 0)
+						--wn;
+				}
 			}
 		}
-		return c;
+		return wn != 0;
+	}
+
+	private static double isLeft(Point p0, Point p1, Point p)
+	{
+		return (p1.x - p0.x) * (p.y - p0.y) - (p.x - p0.x) * (p1.y - p0.y);
 	}
 }
