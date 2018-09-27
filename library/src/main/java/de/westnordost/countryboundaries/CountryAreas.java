@@ -132,8 +132,8 @@ class CountryAreas
 		return wn != 0;
 	}
 
-	private static double isLeft(Point p0, Point p1, Point p)
+	private static long isLeft(Point p0, Point p1, Point p)
 	{
-		return (p1.x - p0.x) * (p.y - p0.y) - (p.x - p0.x) * (p1.y - p0.y);
+		return ((long) p1.x - p0.x) * ((long) p.y - p0.y) - ((long) p.x - p0.x) * ((long) p1.y - p0.y);
 	}
 }

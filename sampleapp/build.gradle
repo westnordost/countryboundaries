@@ -29,6 +29,6 @@ android {
 dependencies {
     implementation 'org.osmdroid:osmdroid-android:5.6.5'
 
-    implementation 'de.westnordost:countryboundaries:1.2'
+    implementation 'de.westnordost:countryboundaries:1.4'
     //implementation project(':library')
 }
