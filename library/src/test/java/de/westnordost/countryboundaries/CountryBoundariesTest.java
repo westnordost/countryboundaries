@@ -10,6 +10,7 @@ import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -17,7 +18,7 @@ import static org.junit.Assert.assertTrue;
 
 public class CountryBoundariesTest
 {
-	@Test public void serializationWorks() throws IOException, ClassNotFoundException
+	@Test public void serializationWorks() throws IOException
 	{
 		Map<String,Double> sizes = new HashMap<>();
 		sizes.put("A",123.0);
@@ -30,8 +31,8 @@ public class CountryBoundariesTest
 		CountryBoundaries boundaries = new CountryBoundaries(
 			cells(
 				cell(null, null),
-				cell(new String[]{"A","B"}, null),
-				cell(new String[]{"B"}, countryAreas(new CountryAreas("A",polygons(A),polygons()))),
+				cell(arrayOf("A","B"), null),
+				cell(arrayOf("B"), countryAreas(new CountryAreas("A",polygons(A),polygons()))),
 				cell(null, countryAreas(
 						new CountryAreas("B",polygons(B), polygons(Bh)),
 						new CountryAreas("C",polygons(B,A), polygons(Bh))
@@ -54,6 +55,39 @@ public class CountryBoundariesTest
 		assertEquals(boundaries, boundaries2);
 	}
 
+	@Test public void delegatesToCorrectCellAtEdges()
+	{
+		CountryBoundaries boundaries = new CountryBoundaries(cells(
+				cell(arrayOf("A"), null),
+				cell(arrayOf("B"), null),
+				cell(arrayOf("C"), null),
+				cell(arrayOf("D"), null)
+		), 2, Collections.emptyMap());
+
+		assertEquals(listOf("C"), boundaries.getIds(-180,-90));
+		assertEquals(listOf("C"), boundaries.getIds(-90,-90));
+		assertEquals(listOf("C"), boundaries.getIds(-180,-45));
+
+		assertEquals(listOf("A"), boundaries.getIds(-180,0));
+		assertEquals(listOf("A"), boundaries.getIds(-90,0));
+
+		assertEquals(listOf("B"), boundaries.getIds(0,0));
+
+		assertEquals(listOf("D"), boundaries.getIds(0,-45));
+		assertEquals(listOf("D"), boundaries.getIds(0,-90));
+	}
+
+	@Test public void noArrayIndexOutOfBoundsAtWorldEdges()
+	{
+		CountryBoundaries boundaries = new CountryBoundaries(
+				cells(cell(arrayOf("A"), null)),
+				1, Collections.emptyMap());
+		boundaries.getIds(-180,-90);
+		boundaries.getIds(+180,+90);
+		boundaries.getIds(-180,+90);
+		boundaries.getIds(+180,-90);
+	}
+
 	@Test public void getContainingIdsSortedBySizeAscending()
 	{
 		Map<String, Double> sizes = new HashMap<>();
@@ -63,75 +97,75 @@ public class CountryBoundariesTest
 		sizes.put("D", 800.0);
 
 		CountryBoundaries boundaries = new CountryBoundaries(cells(
-				cell(new String[] {"D","B","C","A"}, null)
+				cell(arrayOf("D","B","C","A"), null)
 		), 1, sizes);
 
-		assertEquals(Arrays.asList("A","B","C","D"),boundaries.getIds(1,1));
+		assertEquals(listOf("A","B","C","D"),boundaries.getIds(1,1));
 	}
 
 	@Test public void getIntersectingIdsInBBoxIsMergedCorrectly()
 	{
 		CountryBoundaries boundaries = new CountryBoundaries(cells(
-				cell(new String[] {"A"}, null),
-				cell(new String[] {"B"}, null),
-				cell(new String[] {"C"}, null),
-				cell(new String[] {"D"}, null)
+				cell(arrayOf("A"), null),
+				cell(arrayOf("B"), null),
+				cell(arrayOf("C"), null),
+				cell(arrayOf("D"), null)
 		), 2, Collections.emptyMap());
 
 		assertTrue(boundaries.getIntersectingIds(-10,-10,10,10).containsAll(
-				Arrays.asList("A","B","C","D")
+				listOf("A","B","C","D")
 		));
 	}
 
 	@Test public void getIntersectingIdsInBBoxWrapsLongitudeCorrectly()
 	{
 		CountryBoundaries boundaries = new CountryBoundaries(cells(
-				cell(new String[] {"A"}, null),
-				cell(new String[] {"B"}, null)
+				cell(arrayOf("A"), null),
+				cell(arrayOf("B"), null)
 		), 2, Collections.emptyMap());
 
 		assertTrue(boundaries.getIntersectingIds(170,0,-170,1).containsAll(
-				Arrays.asList("A","B")
+				listOf("A","B")
 		));
 	}
 
 	@Test public void getContainingIdsInBBoxWrapsLongitudeCorrectly()
 	{
 		CountryBoundaries boundaries = new CountryBoundaries(cells(
-				cell(new String[] {"A","B","C"}, null),
-				cell(new String[] {"A","B"}, null)
+				cell(arrayOf("A","B","C"), null),
+				cell(arrayOf("A","B"), null)
 		), 2, Collections.emptyMap());
 
 		assertTrue(boundaries.getContainingIds(170,0,-170,1).containsAll(
-				Arrays.asList("A","B")
+				listOf("A","B")
 		));
 	}
 
 	@Test public void geContainingIdsInBBoxIsMergedCorrectly()
 	{
 		CountryBoundaries boundaries = new CountryBoundaries(cells(
-				cell(new String[] {"A","B"}, null),
-				cell(new String[] {"B","A"}, null),
-				cell(new String[] {"C","B","A"}, null),
-				cell(new String[] {"D","A"}, null)
+				cell(arrayOf("A","B"), null),
+				cell(arrayOf("B","A"), null),
+				cell(arrayOf("C","B","A"), null),
+				cell(arrayOf("D","A"), null)
 		), 2, Collections.emptyMap());
 
 		assertTrue(boundaries.getContainingIds(-10,-10,10,10).containsAll(
-				Arrays.asList("A")
+				listOf("A")
 		));
 	}
 
 	@Test public void geContainingIdsInBBoxIsMergedCorrectlyAnNothingIsLeft()
 	{
 		CountryBoundaries boundaries = new CountryBoundaries(cells(
-				cell(new String[] {"A"}, null),
-				cell(new String[] {"B"}, null),
-				cell(new String[] {"C"}, null),
-				cell(new String[] {"D"}, null)
+				cell(arrayOf("A"), null),
+				cell(arrayOf("B"), null),
+				cell(arrayOf("C"), null),
+				cell(arrayOf("D"), null)
 		), 2, Collections.emptyMap());
 
 		assertTrue(boundaries.getContainingIds(-10,-10,10,10).containsAll(
-				Arrays.asList()
+				listOf()
 		));
 	}
 
@@ -145,10 +179,14 @@ public class CountryBoundariesTest
 	private static CountryBoundariesCell cell(String[] containingIds, CountryAreas[] intersecting)
 	{
 		return new CountryBoundariesCell(
-				containingIds == null ? Collections.emptyList() : Arrays.asList(containingIds),
-				intersecting == null ? Collections.emptyList() : Arrays.asList(intersecting)
+				containingIds == null ? listOf() : listOf(containingIds),
+				intersecting == null ? listOf() : listOf(intersecting)
 		);
 	}
+
+
+	private static <T> List<T> listOf(T ...elements) { return Arrays.asList(elements); }
+	private static String[] arrayOf(String ...elements) { return elements; }
 
 	private static CountryBoundariesCell[] cells(CountryBoundariesCell ...cells) { return cells; }
 

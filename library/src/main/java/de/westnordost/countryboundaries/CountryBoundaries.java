@@ -155,7 +155,7 @@ public class CountryBoundaries
 	private int longitudeToCellX(double longitude)
 	{
 		return (int) Math.min(
-				rasterWidth-1,
+				rasterWidth - 1,
 				Math.floor((180 + normalize(longitude, -180, 360)) / 360.0 * rasterWidth)
 		);
 	}
@@ -163,9 +163,9 @@ public class CountryBoundaries
 	private int latitudeToCellY(double latitude)
 	{
 		int rasterHeight = raster.length / rasterWidth;
-		return (int) Math.min(
-				rasterHeight - 1,
-				Math.floor((90 - latitude) / 180.0 * rasterHeight)
+		return (int) Math.max(
+				0,
+				Math.ceil((90 - latitude) / 180.0 * rasterHeight) - 1
 		);
 	}
 

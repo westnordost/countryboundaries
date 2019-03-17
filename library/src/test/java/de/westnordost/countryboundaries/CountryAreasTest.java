@@ -39,6 +39,20 @@ public class CountryAreasTest
 		);
 	}
 
+	@Test public void onlyUpperLeftEdgeCountsAsInside()
+	{
+		CountryAreas areas = new CountryAreas("A",
+				new Point[][]{BIG_SQUARE},
+				new Point[][]{});
+
+		assertTrue(areas.covers(p(0,0)));
+		assertTrue(areas.covers(p(5,0)));
+		assertTrue(areas.covers(p(0,5)));
+		assertFalse(areas.covers(p(5,10)));
+		assertFalse(areas.covers(p(10,5)));
+		assertFalse(areas.covers(p(10,10)));
+	}
+
 	private static Point p(double x, double y)
 	{
 		return new Point(Fixed1E7.doubleToFixed(x),Fixed1E7.doubleToFixed(y));
