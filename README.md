@@ -42,7 +42,7 @@ If you need it even faster (down to below 0.1 ms), you need to import the data s
 ## Data
 
 What exactly is returned when calling `getIds` is dependent on the data set used. The default data set in `/data/` is generated from [this file in the JOSM project](https://josm.openstreetmap.de/export/HEAD/josm/trunk/resources/data/boundaries.osm). It...
-- uses ISO 3166-1 alpha-2 country codes where available and otherwise ISO 3166-2 for subdivision codes. The data set includes subdivisions only for the United States, Canada, Australia, China and India.
+- uses ISO 3166-1 alpha-2 country codes where available and otherwise ISO 3166-2 for subdivision codes. The data set includes all subdivisions only for the United States, Canada, Australia, China and India plus a few subdivisions for other countries. See the source file for details
 - is oblivious of sea borders and will only return correct results for geo positions on land. If you are a pirate and want to know when you reached international waters, don't use this data!
 
 You can import own data from a GeoJson or an OSM XML, using the Java application in the `/generator/` folder. See the source code there for details, it's not that much.
