@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Toast;
 
+import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
@@ -32,6 +33,8 @@ public class MainActivity extends Activity implements MapEventsReceiver
 	{
         super.onCreate(savedInstanceState);
 
+        Configuration.getInstance().setUserAgentValue(BuildConfig.APPLICATION_ID);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
                 checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, WRITE_STORAGE_PERMISSION_REQUEST);
@@ -52,6 +55,20 @@ public class MainActivity extends Activity implements MapEventsReceiver
 			throw new RuntimeException(e);
 		}
 
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        mapView.onResume();
+    }
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+        mapView.onPause();
     }
 
     @Override
@@ -89,14 +106,14 @@ public class MainActivity extends Activity implements MapEventsReceiver
     private void onMayWriteExternalStorage()
 	{
         mapView = new MapView(this);
+
         mapView.setMultiTouchControls(true);
-        mapView.setBuiltInZoomControls(true);
         mapView.setFlingEnabled(true);
         mapView.setTilesScaledToDpi(true);
         mapView.getOverlays().add(new CopyrightOverlay(this));
         mapView.getOverlays().add(new MapEventsOverlay(this));
         mapView.getController().setCenter(new GeoPoint(45.0,10.0));
-        mapView.getController().setZoom(3);
+        mapView.getController().setZoom(3.0);
         setContentView(mapView);
     }
 
