@@ -17,13 +17,13 @@ run {
 }
 
 dependencies {
-    compile 'net.sf.kxml:kxml2:2.3.0'
-    compile 'org.json:json:20171018'
-    compile 'com.vividsolutions:jts-core:1.14.0'
+    implementation 'net.sf.kxml:kxml2:2.3.0'
+    implementation 'org.json:json:20180813'
+    implementation 'com.vividsolutions:jts-core:1.14.0'
 
-    compile project(':library')
+    implementation project(':library')
 
-    testImplementation 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.13.1'
 }
 
 sourceCompatibility = "1.8"
