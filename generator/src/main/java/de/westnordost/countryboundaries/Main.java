@@ -13,16 +13,20 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 public class Main
 {
 	public static void main(String[] args) throws Exception {
 
 		if(args.length < 3) {
-			System.err.println("Missing parameters. I.e. 'boundaries.osm 360 180' ");
+			System.err.println("Missing parameters. F.e. 'boundaries.osm 360 180' ");
 			return;
 		}
 
@@ -60,10 +64,19 @@ public class Main
 		//	writer.write(geojson);
 		//}
 
+		Set<String> excludeCountries = new HashSet<>();
+		excludeCountries.add("FX");
+		excludeCountries.add("EU");
+
+		List<Geometry> geometryList = new ArrayList<>(geometries.getNumGeometries());
 		for (int i = 0; i < geometries.getNumGeometries(); i++)
 		{
 			Geometry g = geometries.getGeometryN(i);
-			g.setUserData(((Map)g.getUserData()).get("id"));
+			Object id = ((Map)g.getUserData()).get("id");
+			if (id instanceof String && !excludeCountries.contains(id)) {
+				g.setUserData(id);
+				geometryList.add(g);
+			}
 		}
 
 		System.out.print("Generating index...");
@@ -83,7 +96,7 @@ public class Main
 			}
 		});
 
-		CountryBoundaries boundaries = generator.generate(width, height, geometries);
+		CountryBoundaries boundaries = generator.generate(width, height, geometryList);
 		try(FileOutputStream fos = new FileOutputStream("boundaries.ser"))
 		{
 			try(ObjectOutputStream oos = new ObjectOutputStream(fos))

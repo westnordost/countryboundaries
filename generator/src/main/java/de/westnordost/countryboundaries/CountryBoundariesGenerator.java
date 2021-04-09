@@ -2,7 +2,6 @@ package de.westnordost.countryboundaries;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.IntersectionMatrix;
 import com.vividsolutions.jts.geom.LineString;
@@ -34,7 +33,7 @@ public class CountryBoundariesGenerator
 		this.listener = listener;
 	}
 
-	public CountryBoundaries generate(int width, int height, GeometryCollection boundaries)
+	public CountryBoundaries generate(int width, int height, List<Geometry> boundaries)
 	{
 		Map<String, Double> geometrySizes = calculateGeometryAreas(boundaries);
 
@@ -136,12 +135,11 @@ public class CountryBoundariesGenerator
 		return result;
 	}
 
-	private STRtree buildIndex(GeometryCollection geometries)
+	private STRtree buildIndex(List<Geometry> geometries)
 	{
 		STRtree index = new STRtree();
-		for (int i = 0; i < geometries.getNumGeometries(); ++i)
+		for (Geometry g : geometries)
 		{
-			Geometry g = geometries.getGeometryN(i);
 			String areaId = getAreaId(g);
 			if(areaId != null)
 			{
@@ -151,12 +149,11 @@ public class CountryBoundariesGenerator
 		return index;
 	}
 
-	private Map<String,Double> calculateGeometryAreas(GeometryCollection geometries)
+	private Map<String,Double> calculateGeometryAreas(List<Geometry> geometries)
 	{
-		Map<String, Double> geometryAreas = new HashMap<>(geometries.getNumGeometries());
-		for (int i = 0; i < geometries.getNumGeometries(); i++)
+		Map<String, Double> geometryAreas = new HashMap<>(geometries.size());
+		for (Geometry g : geometries)
 		{
-			Geometry g = geometries.getGeometryN(i);
 			String areaId = getAreaId(g);
 			if(areaId != null)
 			{

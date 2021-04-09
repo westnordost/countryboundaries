@@ -26,10 +26,10 @@ boundaries.getIds(-96.7954, 32.7816); // returns "US-TX","US"
 boundaries.isIn(8.6910, 47.6973, "DE"); // returns true
 
 // get which country ids can be found within the given bounding box
-boundaries.getIntersectingIds(5.9865, 50.7679, 6.0599, 50.7358) // returns "DE", "BE", "NL, "EU"
+boundaries.getIntersectingIds(5.9865, 50.7679, 6.0599, 50.7358) // returns "DE", "BE", "NL
 
 // get which country ids completely cover the given bounding box
-boundaries.getContainingIds(5.9865, 50.7679, 6.0599, 50.7358) // returns only "EU"
+boundaries.getContainingIds(5.9865, 50.7679, 6.0599, 50.7358) // returns empty list
 ```
 
 The default data file is in `/data/`. Don't forget to give attribution when distributing it.
