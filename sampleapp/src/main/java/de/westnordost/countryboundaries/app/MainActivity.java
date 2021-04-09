@@ -6,7 +6,8 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.widget.Toast;
+import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
@@ -28,10 +29,17 @@ public class MainActivity extends Activity implements MapEventsReceiver
     private MapView mapView;
     private CountryBoundaries countryBoundaries;
 
+    private TextView resultText;
+    private FrameLayout mapContainer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
 	{
         super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_main);
+        resultText = findViewById(R.id.resultText);
+        mapContainer = findViewById(R.id.mapContainer);
 
         Configuration.getInstance().setUserAgentValue(BuildConfig.APPLICATION_ID);
 
@@ -48,7 +56,8 @@ public class MainActivity extends Activity implements MapEventsReceiver
 			countryBoundaries = CountryBoundaries.load(getAssets().open("boundaries.ser"));
 
 			t = System.currentTimeMillis() - t;
-			Toast.makeText(this, "Loading took " + t + "ms", Toast.LENGTH_SHORT).show();
+
+            resultText.setText("Loading took " + t + "ms");
 
 		} catch (IOException e)
 		{
@@ -84,7 +93,7 @@ public class MainActivity extends Activity implements MapEventsReceiver
 		long t = System.nanoTime();
 		List<String> ids = countryBoundaries.getIds(p.getLongitude(), p.getLatitude());
 		t = System.nanoTime() - t;
-        Toast.makeText(this, getToastString(ids) + "\n(in " + String.format(Locale.US, "%.3f", (double)t/1000/1000)+ "ms)", Toast.LENGTH_SHORT).show();
+        resultText.setText(getToastString(ids) + " (in " + String.format(Locale.US, "%.3f", (double)t/1000/1000)+ "ms)");
         return true;
     }
 
@@ -114,7 +123,7 @@ public class MainActivity extends Activity implements MapEventsReceiver
         mapView.getOverlays().add(new MapEventsOverlay(this));
         mapView.getController().setCenter(new GeoPoint(45.0,10.0));
         mapView.getController().setZoom(3.0);
-        setContentView(mapView);
+        mapContainer.addView(mapView);
     }
 
 	private static String getToastString(List<String> ids)
