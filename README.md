@@ -32,17 +32,23 @@ boundaries.getIntersectingIds(5.9865, 50.7679, 6.0599, 50.7358) // returns "DE",
 boundaries.getContainingIds(5.9865, 50.7679, 6.0599, 50.7358) // returns empty list
 ```
 
-The default data file is in `/data/`. Don't forget to give attribution when distributing it.
-
-## Speed
-
-With the default data set, you can expect each call to take something between 0.1 to 0.5 ms and loading the data to take about 1 second - tested on my Sony Xperia Z1 Compact (Android phone from 2014). What makes it that fast is because the boundaries are split up into a raster. In the default data, I used a raster of 180x180 (= one cell is 2° in longitude, 1° in latitude).
-If you need it even faster (down to below 0.1 ms), you need to import the data set into a bigger raster, see below. The bigger the raster, the larger the file, of course.
+The default data file is in `/data/`. Don't forget to give attribution when distributing it. See below.
 
 ## Data
 
-What exactly is returned when calling `getIds` is dependent on the data set used. The default data set in `/data/` is generated from [this file in the JOSM project](https://josm.openstreetmap.de/export/HEAD/josm/trunk/resources/data/boundaries.osm). It...
+What exactly is returned when calling `getIds` is dependent on the source data used. The default data in `/data/` is generated from [this file in the JOSM project](https://josm.openstreetmap.de/export/HEAD/josm/trunk/resources/data/boundaries.osm). It...
 - uses ISO 3166-1 alpha-2 country codes where available and otherwise ISO 3166-2 for subdivision codes. The data set includes all subdivisions only for the United States, Canada, Australia, China and India plus a few subdivisions for other countries. See the source file for details
 - is oblivious of sea borders and will only return correct results for geo positions on land. If you are a pirate and want to know when you reached international waters, don't use this data!
 
-You can import own data from a GeoJson or an OSM XML, using the Java application in the `/generator/` folder. See the source code there for details, it's not that much.
+You can import own data from a GeoJson or an OSM XML, using the Java application in the `/generator/` folder. This is also useful if you want to have custom raster sizes. What are rasters? See below.
+
+## Speed
+
+Using the default data, on a Samsung S10e (Android phone from 2019), querying a single location takes something between 0.02 to 0.06 milliseconds. Querying 1 million random locations (on a single thread) takes about 0.5 seconds, on an Intel i7-7700 desktop computer about half of that.
+
+What makes it that fast is because the boundaries of the source data are split up into a raster. For the above measurements, I used a raster of 360x180 (= one cell is 1° in longitude, 1° in latitude). 
+You can choose a smaller raster to have a smaller file or choose a bigger raster to have faster queries. According to my tests, a file with a raster of 60x30 (= one cell is 6° in longitude and latitude) is about 4 times smaller but queries are about 4 times slower.
+
+Files with a raster of 60x30, 180x90 and 360x180 with the default data are supplied in `/data/` but as explained in the above section, you can create files with custom raster sizes.
+
+The reason why the library does not directly consume a GeoJSON or similar but only a file generated from it is so that the slicing of the source geometry into a raster does not need to be done each time the file is loaded but only once before putting the current version of the boundaries into the distribution.

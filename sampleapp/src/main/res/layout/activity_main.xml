@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:gravity="center">
 
     <FrameLayout
         android:id="@+id/mapContainer"
@@ -11,6 +12,12 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         />
+
+    <Button
+        android:id="@+id/performanceTestButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Start benchmark"/>
 
     <TextView
         android:id="@+id/resultText"

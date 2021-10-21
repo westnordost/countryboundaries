@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -19,6 +20,7 @@ import org.osmdroid.views.overlay.MapEventsOverlay;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 
 import de.westnordost.countryboundaries.CountryBoundaries;
 
@@ -31,6 +33,7 @@ public class MainActivity extends Activity implements MapEventsReceiver
 
     private TextView resultText;
     private FrameLayout mapContainer;
+    private Button performanceTestButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -40,6 +43,7 @@ public class MainActivity extends Activity implements MapEventsReceiver
         setContentView(R.layout.activity_main);
         resultText = findViewById(R.id.resultText);
         mapContainer = findViewById(R.id.mapContainer);
+        performanceTestButton = findViewById(R.id.performanceTestButton);
 
         Configuration.getInstance().setUserAgentValue(BuildConfig.APPLICATION_ID);
 
@@ -50,10 +54,12 @@ public class MainActivity extends Activity implements MapEventsReceiver
             onMayWriteExternalStorage();
         }
 
+        performanceTestButton.setOnClickListener(v -> startPerformanceTest());
+
         try
 		{
 			long t = System.currentTimeMillis();
-			countryBoundaries = CountryBoundaries.load(getAssets().open("boundaries.ser"));
+			countryBoundaries = CountryBoundaries.load(getAssets().open("boundaries60x30.ser"));
 
 			t = System.currentTimeMillis() - t;
 
@@ -93,12 +99,40 @@ public class MainActivity extends Activity implements MapEventsReceiver
 		long t = System.nanoTime();
 		List<String> ids = countryBoundaries.getIds(p.getLongitude(), p.getLatitude());
 		t = System.nanoTime() - t;
-        resultText.setText(getToastString(ids) + " (in " + String.format(Locale.US, "%.3f", (double)t/1000/1000)+ "ms)");
+        resultText.setText(getToastString(ids) + " (in " + String.format(Locale.US, "%,.2f", t*1e-6) + "ms)");
         return true;
     }
 
     @Override
     public boolean longPressHelper(GeoPoint p) { return false; }
+
+    private void startPerformanceTest() {
+        // jupp, do it on the main thread, so user can't do anything :-P
+
+        Random random = new Random();
+        int checks = 1_000_000;
+        long time = System.nanoTime();
+        for (int i = 0; i < checks; i++) {
+            countryBoundaries.getIds(random.nextDouble() * 360.0 - 180.0, random.nextDouble() * 180.0 - 90.0);
+        }
+        long timeSpent = System.nanoTime() - time;
+
+        time = System.nanoTime();
+        for (int i = 0; i < checks; i++) {
+            double x = random.nextDouble() * 360.0 - 180.0;
+            x = random.nextDouble() * 180.0 - 90.0;
+        }
+        long timeSpentNotOnBoundaries = System.nanoTime() - time;
+
+        long timeSpentOnBoundaries = timeSpent - timeSpentNotOnBoundaries;
+
+        resultText.setText(
+            "Querying " + checks + " random locations took " +
+                    String.format(Locale.US, "%,.2f", timeSpentOnBoundaries * 1e-9) + " seconds " +
+                    "- so on average " +
+                    Math.round(timeSpentOnBoundaries * 1.0 / checks) + " nanoseconds"
+        );
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults)
