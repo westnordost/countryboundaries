@@ -1,18 +1,20 @@
-apply plugin: 'com.android.application'
+plugins {
+    id "com.android.application"
+}
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 32
     defaultConfig {
         applicationId "de.westnordost.countryborders"
         minSdkVersion 8
-        targetSdkVersion 30
+        targetSdkVersion 32
         versionCode 1
         versionName "1.0"
     }
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt')
+            proguardFiles getDefaultProguardFile("proguard-android.txt")
         }
     }
 
@@ -20,15 +22,13 @@ android {
         sourceCompatibility 1.8
         targetCompatibility 1.8
     }
-
-    lintOptions {
-        disable 'InvalidPackage'
+    lint {
+        disable "InvalidPackage"
     }
 }
 
 dependencies {
-    implementation 'org.osmdroid:osmdroid-android:6.1.10'
-
-    implementation 'de.westnordost:countryboundaries:1.5'
-    //implementation project(':library')
+    implementation "org.osmdroid:osmdroid-android:6.1.10"
+    implementation "de.westnordost:countryboundaries:1.5"
+    //implementation project(":library")
 }
