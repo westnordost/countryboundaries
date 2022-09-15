@@ -25,17 +25,13 @@ public class Main
 {
 	public static void main(String[] args) throws Exception {
 
-		if(args.length < 3) {
-			System.err.println("Missing parameters. F.e. 'boundaries.osm 360 180' ");
+		if(args.length != 3 && args.length != 2) {
+			System.err.println("Missing parameters. F.e. 'boundaries.osm 360 180' or 'boundaries.osm boundaries.json' ");
 			return;
 		}
 
 		String filename = args[0];
-		int width = Integer.parseInt(args[1]);
-		int height = Integer.parseInt(args[2]);
-
 		FileInputStream is = new FileInputStream(filename);
-
 		GeometryCollection geometries;
 		if(filename.endsWith(".json") || filename.endsWith(".geojson"))
 		{
@@ -58,11 +54,13 @@ public class Main
 			return;
 		}
 
-		//String geojson = new GeoJsonWriter().write(geometries);
-		//try(Writer writer = new OutputStreamWriter(new FileOutputStream("boundaries.json"), "UTF-8"))
-		//{
-		//	writer.write(geojson);
-		//}
+		if(args.length == 2) {
+			String geojson = new GeoJsonWriter().write(geometries);
+			try(Writer writer = new OutputStreamWriter(new FileOutputStream(args[1]), "UTF-8")) {
+				writer.write(geojson);
+			}
+			return;
+		}
 
 		Set<String> excludeCountries = new HashSet<>();
 		excludeCountries.add("FX");
@@ -96,6 +94,8 @@ public class Main
 			}
 		});
 
+		int width = Integer.parseInt(args[1]);
+		int height = Integer.parseInt(args[2]);
 		CountryBoundaries boundaries = generator.generate(width, height, geometryList);
 		try(FileOutputStream fos = new FileOutputStream("boundaries.ser"))
 		{
