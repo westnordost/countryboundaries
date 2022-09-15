@@ -102,7 +102,9 @@ public class JosmCountryBoundariesReader
 				{
 					Named ele = way != null ? way : relation;
 					String key = xpp.getAttributeValue(null, "k");
-					if(ISO3166_1_ALPHA2.equals(key) || ele.name == null && ISO3166_2.equals(key))
+					if("name:en".equals(key)) {
+						ele.nameEn = xpp.getAttributeValue(null, "v");
+					} else if(ISO3166_1_ALPHA2.equals(key) || ele.name == null && ISO3166_2.equals(key))
 					{
 						ele.name = xpp.getAttributeValue(null, "v");
 					}
@@ -136,6 +138,7 @@ public class JosmCountryBoundariesReader
 
 			Poly polygon = new Poly();
 			polygon.name = way.name;
+			polygon.nameEn = way.nameEn;
 			polygon.outer.add(factory.createLinearRing(osm.getCoordinates(entry.getKey())));
 			result.add(polygon);
 		}
@@ -145,6 +148,7 @@ public class JosmCountryBoundariesReader
 
 			Poly polygon = new Poly();
 			polygon.name = relation.name;
+			polygon.nameEn = relation.nameEn;
 			for (Long wayId : relation.outer)
 			{
 				polygon.outer.add(factory.createLinearRing(osm.getCoordinates(wayId)));
@@ -204,7 +208,10 @@ public class JosmCountryBoundariesReader
 				}
 			}
 			g.normalize();
-			g.setUserData(Collections.singletonMap("id", poly.name));
+			Map<String, String> map = new HashMap<>(2);
+			map.put("id", poly.name);
+			map.put("name:en", poly.nameEn);
+			g.setUserData(map);
 			geometries.add(g);
 		}
 
@@ -230,7 +237,7 @@ public class JosmCountryBoundariesReader
 		}
 	}
 
-	private static abstract class Named	{ String name; }
+	private static abstract class Named	{ String name; String nameEn; }
 
 	private static class Way extends Named
 	{
