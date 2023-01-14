@@ -48,6 +48,8 @@ public class CountryAreasTest
 		assertTrue(areas.covers(p(0,0)));
 		assertTrue(areas.covers(p(5,0)));
 		assertTrue(areas.covers(p(0,5)));
+		assertFalse(areas.covers(p(0,10)));
+		assertFalse(areas.covers(p(10,0)));
 		assertFalse(areas.covers(p(5,10)));
 		assertFalse(areas.covers(p(10,5)));
 		assertFalse(areas.covers(p(10,10)));

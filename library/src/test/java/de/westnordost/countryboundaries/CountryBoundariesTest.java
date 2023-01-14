@@ -67,14 +67,24 @@ public class CountryBoundariesTest
 		assertEquals(listOf("C"), boundaries.getIds(-180,-90));
 		assertEquals(listOf("C"), boundaries.getIds(-90,-90));
 		assertEquals(listOf("C"), boundaries.getIds(-180,-45));
+		// wrap around
+		assertEquals(listOf("C"), boundaries.getIds(180,-45));
+		assertEquals(listOf("C"), boundaries.getIds(180,-90));
 
 		assertEquals(listOf("A"), boundaries.getIds(-180,0));
+		assertEquals(listOf("A"), boundaries.getIds(-180,45));
 		assertEquals(listOf("A"), boundaries.getIds(-90,0));
+		// wrap around
+		assertEquals(listOf("A"), boundaries.getIds(180,0));
+		assertEquals(listOf("A"), boundaries.getIds(180,45));
 
 		assertEquals(listOf("B"), boundaries.getIds(0,0));
+		assertEquals(listOf("B"), boundaries.getIds(0,45));
+		assertEquals(listOf("B"), boundaries.getIds(90,0));
 
 		assertEquals(listOf("D"), boundaries.getIds(0,-45));
 		assertEquals(listOf("D"), boundaries.getIds(0,-90));
+		assertEquals(listOf("D"), boundaries.getIds(90,-90));
 	}
 
 	@Test public void noArrayIndexOutOfBoundsAtWorldEdges()
