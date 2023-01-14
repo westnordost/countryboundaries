@@ -4,7 +4,7 @@ plugins {
     id 'signing'
 }
 
-version = "1.5"
+version = "1.6"
 group = "de.westnordost"
 
 dependencies {

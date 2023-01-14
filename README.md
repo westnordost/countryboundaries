@@ -8,12 +8,12 @@ Requires Java 8.
 
 ## Copyright and License
 
-© 2018-2019 Tobias Zwick. This library is released under the terms of the [GNU Lesser General Public License](http://www.gnu.org/licenses/lgpl-3.0.html) (LGPL).
+© 2018-2023 Tobias Zwick. This library is released under the terms of the [GNU Lesser General Public License](http://www.gnu.org/licenses/lgpl-3.0.html) (LGPL).
 The default data used is derived from OpenStreetMap and thus © OpenStreetMap contributors and licensed under the [Open Data Commons Open Database License](https://opendatacommons.org/licenses/odbl/) (ODbL).
 
 ## Usage
 
-Add [`de.westnordost:countryboundaries:1.5`](https://mvnrepository.com/artifact/de.westnordost/countryboundaries/1.5) as a Maven dependency or download the jar from there.
+Add [`de.westnordost:countryboundaries:1.6`](https://mvnrepository.com/artifact/de.westnordost/countryboundaries/1.6) as a Maven dependency or download the jar from there.
 
 ```java
 // load data. You should do this once and use CountryBoundaries as a singleton.
