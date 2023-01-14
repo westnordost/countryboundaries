@@ -25,6 +25,7 @@ android {
     lint {
         disable "InvalidPackage"
     }
+    namespace 'de.westnordost.countryboundaries.app'
 }
 
 dependencies {
