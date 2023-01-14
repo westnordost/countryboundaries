@@ -171,8 +171,9 @@ public class CountryBoundaries
 
 	private static double normalize(double value, double startAt, double base)
 	{
-		while (value < startAt) value += base;
-		while (value > startAt + base) value -= base;
+		value = value % base;
+		if (value < startAt) value += base;
+		else if (value >= (startAt + base)) value -= base;
 		return value;
 	}
 
