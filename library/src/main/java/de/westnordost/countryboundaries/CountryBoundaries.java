@@ -156,7 +156,7 @@ public class CountryBoundaries
 	{
 		return (int) Math.min(
 				rasterWidth - 1,
-				Math.floor((180 + normalize(longitude, -180, 360)) / 360.0 * rasterWidth)
+				Math.floor(rasterWidth * (180 + normalize(longitude, -180, 360)) / 360.0)
 		);
 	}
 
@@ -165,7 +165,7 @@ public class CountryBoundaries
 		int rasterHeight = raster.length / rasterWidth;
 		return (int) Math.max(
 				0,
-				Math.ceil((90 - latitude) / 180.0 * rasterHeight) - 1
+				Math.ceil(rasterHeight * (90 - latitude) / 180.0) - 1
 		);
 	}
 
