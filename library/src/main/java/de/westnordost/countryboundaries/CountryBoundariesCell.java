@@ -19,6 +19,7 @@ class CountryBoundariesCell
 		this.intersectingCountries = intersectingCountries;
 	}
 
+	/** Returns whether the given point is in any of the given ids */
 	boolean isInAny(double longitude, double latitude, Collection<String> ids)
 	{
 		for (String id : containingIds)
@@ -36,6 +37,7 @@ class CountryBoundariesCell
 		return false;
 	}
 
+	/** Return all ids that cover the given point */
 	List<String> getIds(double longitude, double latitude)
 	{
 		List<String> result = new ArrayList<>(containingIds.size());
@@ -55,6 +57,7 @@ class CountryBoundariesCell
 		return result;
 	}
 
+	/** Return all ids that completely cover or partly cover this cell */
 	Collection<String> getAllIds()
 	{
 		Collection<String> result = new ArrayList<>(containingIds.size() + intersectingCountries.size());

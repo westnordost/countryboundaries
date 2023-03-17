@@ -41,7 +41,7 @@ public class CountryBoundaries
 
 	/** @param longitude longitude of geo position (-180...180)
 	 *  @param latitude latitude of geo position (-90...90)
-	 *  @param id ids of the country to look for
+	 *  @param id id of the country to look for
 	 *  @return whether the given position is in the country with the given id */
 	public boolean isIn(double longitude, double latitude, String id)
 	{

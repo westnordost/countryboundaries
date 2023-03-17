@@ -16,6 +16,7 @@ class CountryAreas
 		this.inner = inner;
 	}
 
+	/** Returns whether it contains the given point */
 	boolean covers(Point point)
 	{
 		int insides = 0;
