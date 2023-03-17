@@ -44,7 +44,7 @@ You can import own data from a GeoJson or an OSM XML, using the Java application
 
 ## Speed
 
-Using the default data, on a Samsung S10e (Android phone from 2019), querying a single location takes something between 0.02 to 0.06 milliseconds. Querying 1 million random locations (on a single thread) takes about 0.5 seconds, on an Intel i7-7700 desktop computer about half of that.
+Using the default data, on a Samsung S10e (Android phone from 2019), querying a single location takes something between 0.02 to 0.06 milliseconds. Querying 1 million random locations on a single thread takes about 0.5 seconds, with a Ryzen 5700X CPU about one quarter of that.
 
 What makes it that fast is because the boundaries of the source data are split up into a raster. For the above measurements, I used a raster of 360x180 (= one cell is 1° in longitude, 1° in latitude). 
 You can choose a smaller raster to have a smaller file or choose a bigger raster to have faster queries. According to my tests, a file with a raster of 60x30 (= one cell is 6° in longitude and latitude) is about 4 times smaller but queries are about 4 times slower.
