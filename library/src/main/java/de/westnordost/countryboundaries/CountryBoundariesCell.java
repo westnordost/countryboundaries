@@ -26,12 +26,15 @@ class CountryBoundariesCell
 		{
 			if(ids.contains(id)) return true;
 		}
-		Point point = new Point(Fixed1E7.doubleToFixed(longitude), Fixed1E7.doubleToFixed(latitude));
-		for (CountryAreas areas : intersectingCountries)
+		if (!intersectingCountries.isEmpty())
 		{
-			if(ids.contains(areas.id))
+			Point point = new Point(Fixed1E7.doubleToFixed(longitude), Fixed1E7.doubleToFixed(latitude));
+			for (CountryAreas areas : intersectingCountries)
 			{
-				if(areas.covers(point)) return true;
+				if (ids.contains(areas.id))
+				{
+					if (areas.covers(point)) return true;
+				}
 			}
 		}
 		return false;
