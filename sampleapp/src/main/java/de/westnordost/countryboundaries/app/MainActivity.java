@@ -59,7 +59,7 @@ public class MainActivity extends Activity implements MapEventsReceiver
         try
 		{
 			long t = System.currentTimeMillis();
-			countryBoundaries = CountryBoundaries.load(getAssets().open("boundaries60x30.ser"));
+			countryBoundaries = CountryBoundaries.load(getAssets().open("boundaries360x180.ser"));
 
 			t = System.currentTimeMillis() - t;
 
