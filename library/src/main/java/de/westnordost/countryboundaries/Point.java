@@ -1,9 +1,5 @@
 package de.westnordost.countryboundaries;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-
 class Point
 {
 	final int x, y;
@@ -31,16 +27,5 @@ class Point
 	@Override public String toString()
 	{
 		return "[" + Fixed1E7.toDouble(x) + "," + Fixed1E7.toDouble(y) + "]";
-	}
-
-	void write(ObjectOutputStream out) throws IOException
-	{
-		out.writeInt(x);
-		out.writeInt(y);
-	}
-
-	static Point read(ObjectInputStream in) throws IOException
-	{
-		return new Point(in.readInt(), in.readInt());
 	}
 }

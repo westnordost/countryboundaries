@@ -3,11 +3,9 @@ package de.westnordost.countryboundaries;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -15,9 +13,9 @@ import java.util.Set;
 
 public class CountryBoundaries
 {
-	private final CountryBoundariesCell[] raster;
-	private final int rasterWidth;
-	private final Map<String, Double> geometrySizes;
+	final CountryBoundariesCell[] raster;
+	final int rasterWidth;
+	final Map<String, Double> geometrySizes;
 
 	CountryBoundaries(
 			CountryBoundariesCell[] raster, int rasterWidth, Map<String, Double> geometrySizes)
@@ -29,7 +27,7 @@ public class CountryBoundaries
 
 	public static CountryBoundaries load(InputStream is) throws IOException
 	{
-		return read(new ObjectInputStream(is));
+		return new CountryBoundariesDeserializer().read(new ObjectInputStream(is));
 	}
 
 	/** @param longitude longitude of geo position (-180...180)
@@ -79,11 +77,11 @@ public class CountryBoundaries
 		{
 			if(ids.isEmpty())
 			{
-				ids.addAll(cell.getContainingIds());
+				ids.addAll(cell.containingIds);
 			}
 			else
 			{
-				ids.retainAll(cell.getContainingIds());
+				ids.retainAll(cell.containingIds);
 			}
 		});
 		return ids;
@@ -204,39 +202,5 @@ public class CountryBoundaries
 	@Override public int hashCode()
 	{
 		return rasterWidth + 31 * (Arrays.hashCode(raster) + 31 * geometrySizes.hashCode());
-	}
-
-	void write(ObjectOutputStream out) throws IOException
-	{
-		out.writeInt(geometrySizes.size());
-		for (Map.Entry<String, Double> e : geometrySizes.entrySet())
-		{
-			out.writeUTF(e.getKey());
-			out.writeDouble(e.getValue());
-		}
-		out.writeInt(rasterWidth);
-		out.writeInt(raster.length);
-		for (int c = 0; c < raster.length; c++)
-		{
-			raster[c].write(out);
-		}
-	}
-
-	static CountryBoundaries read(ObjectInputStream in) throws IOException
-	{
-		int geometrySizesCount = in.readInt();
-		Map<String, Double> geometrySizes = new HashMap<>(geometrySizesCount);
-		for (int i = 0; i < geometrySizesCount; i++)
-		{
-			geometrySizes.put(in.readUTF().intern(), in.readDouble());
-		}
-		int rasterWidth = in.readInt();
-		int rasterSize = in.readInt();
-		CountryBoundariesCell[] raster = new CountryBoundariesCell[rasterSize];
-		for (int i= 0; i < rasterSize; i++)
-		{
-			raster[i] = CountryBoundariesCell.read(in);
-		}
-		return new CountryBoundaries(raster, rasterWidth, geometrySizes);
 	}
 }

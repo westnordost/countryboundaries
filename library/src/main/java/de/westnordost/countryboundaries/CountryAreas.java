@@ -1,16 +1,13 @@
 package de.westnordost.countryboundaries;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.Arrays;
 
 /** Represents the areas that one country with the given id covers. */
 class CountryAreas
 {
 	final String id;
-	private final Point[][] outer;
-	private final Point[][] inner;
+	final Point[][] outer;
+	final Point[][] inner;
 
 	CountryAreas(String id, Point[][] outer, Point[][] inner)
 	{
@@ -51,56 +48,6 @@ class CountryAreas
 	@Override public String toString()
 	{
 		return "" + id + ":" + Arrays.deepToString(outer) + " - " + Arrays.deepToString(inner);
-	}
-
-	void write(ObjectOutputStream out) throws IOException
-	{
-		out.writeUTF(id);
-		out.writeInt(outer.length);
-		for (Point[] ring : outer)
-		{
-			writeRing(ring, out);
-		}
-		out.writeInt(inner.length);
-		for (Point[] ring : inner)
-		{
-			writeRing(ring, out);
-		}
-	}
-
-	private void writeRing(Point[] points, ObjectOutputStream out) throws IOException
-	{
-		out.writeInt(points.length);
-		for (Point point : points)
-		{
-			point.write(out);
-		}
-	}
-
-	static CountryAreas read(ObjectInputStream in) throws IOException
-	{
-		String id = in.readUTF().intern();
-		Point[][] outer = new Point[in.readInt()][];
-		for (int i = 0; i < outer.length; i++)
-		{
-			outer[i] = readRing(in);
-		}
-		Point[][] inner = new Point[in.readInt()][];
-		for (int i = 0; i < inner.length; i++)
-		{
-			inner[i] = readRing(in);
-		}
-		return new CountryAreas(id, outer, inner);
-	}
-
-	private static Point[] readRing(ObjectInputStream in) throws IOException
-	{
-		Point[] ring = new Point[in.readInt()];
-		for (int j = 0; j < ring.length; j++)
-		{
-			ring[j] = Point.read(in);
-		}
-		return ring;
 	}
 
 	// modified from:

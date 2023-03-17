@@ -1,19 +1,15 @@
 package de.westnordost.countryboundaries;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 /** One cell in the country boundaries grid */
 class CountryBoundariesCell
 {
-	private final Collection<String> containingIds;
-	private final Collection<CountryAreas> intersectingCountries;
+	final Collection<String> containingIds;
+	final Collection<CountryAreas> intersectingCountries;
 
 	CountryBoundariesCell(
 			Collection<String> containingIds,
@@ -59,11 +55,6 @@ class CountryBoundariesCell
 		return result;
 	}
 
-	Collection<String> getContainingIds()
-	{
-		return containingIds;
-	}
-
 	Collection<String> getAllIds()
 	{
 		Collection<String> result = new ArrayList<>(containingIds.size() + intersectingCountries.size());
@@ -94,45 +85,5 @@ class CountryBoundariesCell
 	@Override public String toString()
 	{
 		return Arrays.toString(containingIds.toArray()) + " " + Arrays.toString(intersectingCountries.toArray());
-	}
-
-	void write(ObjectOutputStream out) throws IOException
-	{
-		out.writeInt(containingIds.size());
-		for (String id : containingIds)
-		{
-			out.writeUTF(id);
-		}
-		out.writeInt(intersectingCountries.size());
-		for (CountryAreas areas : intersectingCountries)
-		{
-			areas.write(out);
-		}
-	}
-
-	static CountryBoundariesCell read(ObjectInputStream in) throws IOException
-	{
-		List<String> containingIds = Collections.emptyList();
-		List<CountryAreas> intersectingCountries = Collections.emptyList();
-
-		int containingIdsSize = in.readInt();
-		if(containingIdsSize > 0)
-		{
-			containingIds = new ArrayList<>(containingIdsSize);
-			for (int i = 0; i < containingIdsSize; i++)
-			{
-				containingIds.add(in.readUTF().intern());
-			}
-		}
-		int intersectingPolygonsSize = in.readInt();
-		if(intersectingPolygonsSize > 0)
-		{
-			intersectingCountries = new ArrayList<>(intersectingPolygonsSize);
-			for (int i = 0; i < intersectingPolygonsSize; i++)
-			{
-				intersectingCountries.add(CountryAreas.read(in));
-			}
-		}
-		return new CountryBoundariesCell(containingIds, intersectingCountries);
 	}
 }
