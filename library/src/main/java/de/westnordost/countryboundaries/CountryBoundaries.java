@@ -32,7 +32,8 @@ public class CountryBoundaries
 
 	/** @param longitude longitude of geo position (-180...180)
 	 *  @param latitude latitude of geo position (-90...90)
-	 *  @param ids ids of the countries to look for
+	 *  @param ids ids of the countries to look for. Note that if you have many ids, you should use
+	 *             a Set to increase performance
 	 *  @return whether the given position is in any of the countries with the given ids */
 	public boolean isInAny(double longitude, double latitude, Collection<String> ids)
 	{
