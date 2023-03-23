@@ -74,11 +74,13 @@ public class CountryBoundaries
 			double minLongitude, double minLatitude, double maxLongitude, double maxLatitude)
 	{
 		Set<String> ids = new HashSet<>();
+		final boolean[] firstCell = {true};
 		forCellsIn(minLongitude, minLatitude, maxLongitude, maxLatitude, cell ->
 		{
-			if(ids.isEmpty())
+			if(firstCell[0])
 			{
 				ids.addAll(cell.containingIds);
+				firstCell[0] = false;
 			}
 			else
 			{

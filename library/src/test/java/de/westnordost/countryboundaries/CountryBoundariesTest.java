@@ -109,6 +109,18 @@ public class CountryBoundariesTest
 		));
 	}
 
+	@Test public void geContainingIdsInBBoxReturnsCorrectResultWhenOneCellIsEmpty()
+	{
+		CountryBoundaries boundaries = new CountryBoundaries(cells(
+				cell(null, null),
+				cell(arrayOf("A"), null),
+				cell(arrayOf("A"), null),
+				cell(arrayOf("A"), null)
+		), 2, Collections.emptyMap());
+
+		assertTrue(boundaries.getContainingIds(-10,-10,10,10).isEmpty());
+	}
+
 	@Test public void geContainingIdsInBBoxIsMergedCorrectly()
 	{
 		CountryBoundaries boundaries = new CountryBoundaries(cells(
