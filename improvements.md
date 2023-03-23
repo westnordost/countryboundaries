@@ -30,5 +30,5 @@ Hence,
 - it is less flexible as grid sizes below 550x275 have caveats in precision that may feel like bugs if not explained properly
 - for common values for the grid, the resulting file is larger (due to the new recommended minimum)
 - there is a (tiny) calculation overhead to convert global coordinates to cell coordinates
-- current serialization format supports precision up to 7 decimals (~1 centimeter), hence is more flexible
+- current serialization format supports precision up to 7 decimals (~1 centimeter) regardless of grid size, hence is more flexible
 - but at least in 50% more cases, getting the country id consists of a simple lookup + when point in polygon checks have to be made, they deal with polygons half the size
