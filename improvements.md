@@ -32,3 +32,11 @@ Hence,
 - there is a (tiny) calculation overhead to convert global coordinates to cell coordinates
 - current serialization format supports precision up to 7 decimals (~1 centimeter), hence is more flexible
 - but at least in 50% more cases, getting the country id consists of a simple lookup + when point in polygon checks have to be made, they deal with polygons half the size
+
+### Use a 8 bit integer to indicate length of containingIds and intersectingIds
+
+Usually, these two arrays will have a length of 0-2, rarely up to 6 I guess. 
+So actually, they could even share one byte (so each can have a length of up to 16), but maybe 
+that's a bit too much.
+
+In any case, this reduces file size by about one third (but does nothing for in-memory size).
