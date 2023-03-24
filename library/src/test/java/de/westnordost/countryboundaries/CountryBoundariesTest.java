@@ -77,11 +77,11 @@ public class CountryBoundariesTest
 				cell(arrayOf("A"), null),
 				cell(arrayOf("B"), null),
 				cell(arrayOf("C"), null),
-				cell(arrayOf("D"), null)
+				cell(arrayOf("D", "E"), null)
 		), 2, Collections.emptyMap());
 
 		assertTrue(boundaries.getIntersectingIds(-10,-10,10,10).containsAll(
-				listOf("A","B","C","D")
+				listOf("A","B","C","D","E")
 		));
 	}
 
@@ -89,11 +89,12 @@ public class CountryBoundariesTest
 	{
 		CountryBoundaries boundaries = new CountryBoundaries(cells(
 				cell(arrayOf("A"), null),
-				cell(arrayOf("B"), null)
-		), 2, Collections.emptyMap());
+				cell(arrayOf("B"), null),
+				cell(arrayOf("C"), null)
+		), 3, Collections.emptyMap());
 
 		assertTrue(boundaries.getIntersectingIds(170,0,-170,1).containsAll(
-				listOf("A","B")
+				listOf("A","C")
 		));
 	}
 
@@ -101,15 +102,16 @@ public class CountryBoundariesTest
 	{
 		CountryBoundaries boundaries = new CountryBoundaries(cells(
 				cell(arrayOf("A","B","C"), null),
+				cell(arrayOf("X"), null),
 				cell(arrayOf("A","B"), null)
-		), 2, Collections.emptyMap());
+		), 3, Collections.emptyMap());
 
 		assertTrue(boundaries.getContainingIds(170,0,-170,1).containsAll(
 				listOf("A","B")
 		));
 	}
 
-	@Test public void geContainingIdsInBBoxReturnsCorrectResultWhenOneCellIsEmpty()
+	@Test public void getContainingIdsInBBoxReturnsCorrectResultWhenOneCellIsEmpty()
 	{
 		CountryBoundaries boundaries = new CountryBoundaries(cells(
 				cell(null, null),
@@ -121,7 +123,7 @@ public class CountryBoundariesTest
 		assertTrue(boundaries.getContainingIds(-10,-10,10,10).isEmpty());
 	}
 
-	@Test public void geContainingIdsInBBoxIsMergedCorrectly()
+	@Test public void getContainingIdsInBBoxIsMergedCorrectly()
 	{
 		CountryBoundaries boundaries = new CountryBoundaries(cells(
 				cell(arrayOf("A","B"), null),
@@ -135,7 +137,7 @@ public class CountryBoundariesTest
 		));
 	}
 
-	@Test public void geContainingIdsInBBoxIsMergedCorrectlyAnNothingIsLeft()
+	@Test public void getContainingIdsInBBoxIsMergedCorrectlyAnNothingIsLeft()
 	{
 		CountryBoundaries boundaries = new CountryBoundaries(cells(
 				cell(arrayOf("A"), null),
@@ -144,9 +146,7 @@ public class CountryBoundariesTest
 				cell(arrayOf("D"), null)
 		), 2, Collections.emptyMap());
 
-		assertTrue(boundaries.getContainingIds(-10,-10,10,10).containsAll(
-				listOf()
-		));
+		assertTrue(boundaries.getContainingIds(-10,-10,10,10).isEmpty());
 	}
 
 	/* Helpers */
