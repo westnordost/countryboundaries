@@ -35,10 +35,10 @@ class CountryBoundariesDeserializer {
                 containingIds.add(in.readUTF().intern());
             }
         }
-        int intersectingPolygonsSize = in.readInt();
-        if(intersectingPolygonsSize > 0) {
-            intersectingCountries = new ArrayList<>(intersectingPolygonsSize);
-            for (int i = 0; i < intersectingPolygonsSize; i++) {
+        int intersectingAreasSize = in.readInt();
+        if(intersectingAreasSize > 0) {
+            intersectingCountries = new ArrayList<>(intersectingAreasSize);
+            for (int i = 0; i < intersectingAreasSize; i++) {
                 intersectingCountries.add(readAreas(in));
             }
         }
@@ -47,15 +47,17 @@ class CountryBoundariesDeserializer {
 
     private CountryAreas readAreas(ObjectInputStream in) throws IOException {
         String id = in.readUTF().intern();
-        Point[][] outer = new Point[in.readInt()][];
-        for (int i = 0; i < outer.length; i++) {
-            outer[i] = readRing(in);
-        }
-        Point[][] inner = new Point[in.readInt()][];
-        for (int i = 0; i < inner.length; i++) {
-            inner[i] = readRing(in);
-        }
+        Point[][] outer = readPolygons(in);
+        Point[][] inner = readPolygons(in);
         return new CountryAreas(id, outer, inner);
+    }
+
+    private Point[][] readPolygons(ObjectInputStream in) throws IOException {
+        Point[][] polygons = new Point[in.readInt()][];
+        for (int i = 0; i < polygons.length; i++) {
+            polygons[i] = readRing(in);
+        }
+        return polygons;
     }
 
     private Point[] readRing(ObjectInputStream in) throws IOException {
