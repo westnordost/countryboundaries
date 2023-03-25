@@ -37,7 +37,7 @@ The default data file is in `/data/`. Don't forget to give attribution when dist
 ## Data
 
 What exactly is returned when calling `getIds` is dependent on the source data used. The default data in `/data/` is generated from [this file in the JOSM project](https://josm.openstreetmap.de/export/HEAD/josm/trunk/resources/data/boundaries.osm). It...
-- uses ISO 3166-1 alpha-2 country codes where available and otherwise ISO 3166-2 for subdivision codes. The data set currently includes all subdivisions only for the 🇺🇸 United States, 🇨🇦 Canada, 🇦🇺 Australia, 🇨🇳 China and 🇮🇳 India, 🇫🇲 Micronesia, 🇧🇪 Belgium plus a few subdivisions for other countries. See the source file for details
+- uses ISO 3166-1 alpha-2 country codes where available and otherwise ISO 3166-2 for subdivision codes. The data set currently includes all subdivisions only for the 🇺🇸 United States, 🇨🇦 Canada, 🇦🇺 Australia, 🇨🇳 China, 🇮🇳 India, 🇫🇲 Micronesia and 🇧🇪 Belgium plus a few subdivisions for other countries. See the source file for details
 - is oblivious of sea borders and will only return correct results for geo positions on land. If you are a pirate and want to know when you reached international waters, don't use this data!
 
 You can import own data from a GeoJson or an OSM XML, using the Java application in the `/generator/` folder. This is also useful if you want to have custom raster sizes. What are rasters? See below.
