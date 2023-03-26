@@ -10,6 +10,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class CountryBoundariesTest
 {
@@ -149,7 +150,72 @@ public class CountryBoundariesTest
 		assertTrue(boundaries.getContainingIds(-10,-10,10,10).isEmpty());
 	}
 
+	@Test
+	public void latitudeOutOfBoundsThrows() {
+		CountryBoundaries b = emptyBoundaries();
+
+		assertThrows(IllegalArgumentException.class, () -> b.getContainingIds(0, -90.0001, 0, 0));
+		assertThrows(IllegalArgumentException.class, () -> b.getContainingIds(0, +90.0001, 0, 0));
+		assertThrows(IllegalArgumentException.class, () -> b.getContainingIds(0, 0, 0, -90.0001));
+		assertThrows(IllegalArgumentException.class, () -> b.getContainingIds(0, 0, 0, +90.0001));
+
+		assertThrows(IllegalArgumentException.class, () -> b.getIds(0, -90.0001));
+		assertThrows(IllegalArgumentException.class, () -> b.getIds(0, +90.0001));
+	}
+
+	@Test
+	public void maxLatitudeIsSmallerThanMinLatitudeThrows() {
+		CountryBoundaries b = emptyBoundaries();
+
+		assertThrows(IllegalArgumentException.class, () -> b.getContainingIds(0, 1.1, 0, 1.0));
+	}
+
+	@Test
+	public void nonFiniteNumbersThrows() {
+		CountryBoundaries b = emptyBoundaries();
+
+		assertThrows(IllegalArgumentException.class, () -> b.getIds(Double.NaN, 0));
+		assertThrows(IllegalArgumentException.class, () -> b.getIds(0, Double.NaN));
+
+		assertThrows(IllegalArgumentException.class, () -> b.getIds(Double.POSITIVE_INFINITY, 0));
+		assertThrows(IllegalArgumentException.class, () -> b.getIds(0, Double.POSITIVE_INFINITY));
+
+		assertThrows(IllegalArgumentException.class, () -> b.getIds(0, Double.NEGATIVE_INFINITY));
+		assertThrows(IllegalArgumentException.class, () -> b.getIds(Double.NEGATIVE_INFINITY, 0));
+
+		assertThrows(IllegalArgumentException.class, () -> b.getContainingIds(Double.NaN, 0, 0, 0));
+		assertThrows(IllegalArgumentException.class, () -> b.getContainingIds(0, Double.NaN, 0, 0));
+		assertThrows(IllegalArgumentException.class, () -> b.getContainingIds(0, 0, Double.NaN, 0));
+		assertThrows(IllegalArgumentException.class, () -> b.getContainingIds(0, 0, 0, Double.NaN));
+
+		assertThrows(IllegalArgumentException.class, () -> b.getContainingIds(Double.POSITIVE_INFINITY, 0, 0, 0));
+		assertThrows(IllegalArgumentException.class, () -> b.getContainingIds(0, Double.POSITIVE_INFINITY, 0, 0));
+		assertThrows(IllegalArgumentException.class, () -> b.getContainingIds(0, 0, Double.POSITIVE_INFINITY, 0));
+		assertThrows(IllegalArgumentException.class, () -> b.getContainingIds(0, 0, 0, Double.POSITIVE_INFINITY));
+
+		assertThrows(IllegalArgumentException.class, () -> b.getContainingIds(Double.NEGATIVE_INFINITY, 0, 0, 0));
+		assertThrows(IllegalArgumentException.class, () -> b.getContainingIds(0, Double.NEGATIVE_INFINITY, 0, 0));
+		assertThrows(IllegalArgumentException.class, () -> b.getContainingIds(0, 0, Double.NEGATIVE_INFINITY, 0));
+		assertThrows(IllegalArgumentException.class, () -> b.getContainingIds(0, 0, 0, Double.NEGATIVE_INFINITY));
+	}
+
 	/* Helpers */
+
+	private static void assertThrows(Class<?> clazz, Runnable block) {
+		try {
+			block.run();
+		} catch (Throwable e) {
+			if (e.getClass() != clazz) {
+				fail("Expected exception of type " + clazz.getName() + " but got a " + e.getClass().getName());
+			}
+			return;
+		}
+		fail("Expected exception");
+	}
+
+	private static CountryBoundaries emptyBoundaries() {
+		return new CountryBoundaries(cells(cell(null, null)), 1, Collections.emptyMap());
+	}
 
 	private static CountryBoundariesCell cell(String[] containingIds, CountryAreas[] intersecting)
 	{

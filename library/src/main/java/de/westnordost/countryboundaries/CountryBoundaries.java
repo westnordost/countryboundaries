@@ -115,6 +115,14 @@ public class CountryBoundaries
 			double minLongitude, double minLatitude, double maxLongitude, double maxLatitude,
 			CellRunnable runnable)
 	{
+		if (!Double.isFinite(minLongitude))
+			throw new IllegalArgumentException("minLongitude must be finite");
+		if (!Double.isFinite(minLatitude))
+			throw new IllegalArgumentException("minLatitude must be finite");
+		if (!Double.isFinite(maxLongitude))
+			throw new IllegalArgumentException("maxLongitude must be finite");
+		if (!Double.isFinite(maxLatitude))
+			throw new IllegalArgumentException("maxLatitude must be finite");
 		if (minLatitude < -90 || minLatitude > 90)
 			throw new IllegalArgumentException("minLatitude is out of bounds");
 		if (maxLatitude < -90 || maxLatitude > 90)
@@ -147,7 +155,12 @@ public class CountryBoundaries
 
 	private CountryBoundariesCell getCell(double longitude, double latitude)
 	{
-		if (latitude < -90 || latitude > 90) throw new IllegalArgumentException("latitude is out of bounds");
+		if (!Double.isFinite(longitude))
+			throw new IllegalArgumentException("longitude must be finite");
+		if (!Double.isFinite(latitude))
+			throw new IllegalArgumentException("latitude must be finite");
+		if (latitude < -90 || latitude > 90)
+			throw new IllegalArgumentException("latitude is out of bounds");
 		int x = longitudeToCellX(longitude);
 		int y = latitudeToCellY(latitude);
 		return raster[y * rasterWidth + x];
