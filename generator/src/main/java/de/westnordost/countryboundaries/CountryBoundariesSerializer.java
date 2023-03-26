@@ -32,12 +32,13 @@ public class CountryBoundariesSerializer {
 
     private void writeAreas(CountryAreas areas, ObjectOutputStream out) throws IOException {
         out.writeUTF(areas.id);
-        out.writeInt(areas.outer.length);
-        for (Point[] ring : areas.outer) {
-            writeRing(ring, out);
-        }
-        out.writeInt(areas.inner.length);
-        for (Point[] ring : areas.inner) {
+        writePolygons(areas.outer, out);
+        writePolygons(areas.inner, out);
+    }
+
+    private void writePolygons(Point[][] polygons, ObjectOutputStream out) throws IOException {
+        out.writeInt(polygons.length);
+        for (Point[] ring : polygons) {
             writeRing(ring, out);
         }
     }
