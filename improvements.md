@@ -33,10 +33,13 @@ Hence,
 - current serialization format supports precision up to 7 decimals (~1 centimeter) regardless of grid size, hence is more flexible
 - but at least in 50% more cases, getting the country id consists of a simple lookup + when point in polygon checks have to be made, they deal with polygons half the size
 
-### Use a 8 bit integer to indicate length of containingIds and intersectingIds
+### Use a 8 bit integer to indicate length of various arrays
 
-Usually, these two arrays will have a length of 0-2, rarely up to 6 I guess. 
-So actually, they could even share one byte (so each can have a length of up to 16), but maybe 
-that's a bit too much.
+... such as the length of the containingIds and intersectingIds of each cell, the polygon count
+in an area or the point count in a polygon.
 
-In any case, this reduces file size by about one third (but does nothing for in-memory size).
+For best flexibility, the necessary bytes could be determined during serialization by first 
+calculating the max of each of those.
+
+This reduces file size by about one third (but does nothing for in-memory size) and would make the 
+cell numbers approach much less worth it.
