@@ -13,17 +13,25 @@ public class CountryBoundariesSerializer {
         }
         out.writeInt(boundaries.rasterWidth);
         out.writeInt(boundaries.raster.length);
-        for (int c = 0; c < boundaries.raster.length; c++) {
-            writeCell(boundaries.raster[c], out);
+        for (CountryBoundariesCell cell : boundaries.raster) {
+            writeCell(cell, out);
         }
     }
 
-        out.writeInt(cell.containingIds.size());
     private void writeCell(CountryBoundariesCell cell, DataOutputStream out) throws IOException {
+        int containingIdsSize = cell.containingIds.size();
+        if (containingIdsSize > 255) {
+            throw new IllegalArgumentException("At most 255 different areas per cell are supported (try a bigger raster)");
+        }
+        out.writeByte(containingIdsSize);
         for (String id : cell.containingIds) {
             out.writeUTF(id);
         }
-        out.writeInt(cell.intersectingCountries.size());
+        int intersectingCountriesSize = cell.intersectingCountries.size();
+        if (intersectingCountriesSize > 255) {
+            throw new IllegalArgumentException("At most 255 different areas per cell are supported (try a bigger raster)");
+        }
+        out.writeByte(intersectingCountriesSize);
         for (CountryAreas areas : cell.intersectingCountries) {
             writeAreas(areas, out);
         }
@@ -35,8 +43,12 @@ public class CountryBoundariesSerializer {
         writePolygons(areas.inner, out);
     }
 
-        out.writeInt(polygons.length);
     private void writePolygons(Point[][] polygons, DataOutputStream out) throws IOException {
+        int polygonsCount = polygons.length;
+        if (polygonsCount > 255) {
+            throw new IllegalArgumentException("At most 255 different polygons are supported per area (try a bigger raster)");
+        }
+        out.writeByte(polygons.length);
         for (Point[] ring : polygons) {
             writeRing(ring, out);
         }

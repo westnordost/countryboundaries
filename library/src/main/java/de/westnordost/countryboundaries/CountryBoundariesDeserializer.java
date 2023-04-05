@@ -28,14 +28,14 @@ class CountryBoundariesDeserializer {
         List<String> containingIds = Collections.emptyList();
         List<CountryAreas> intersectingCountries = Collections.emptyList();
 
-        int containingIdsSize = in.readInt();
+        int containingIdsSize = in.readUnsignedByte();
         if(containingIdsSize > 0) {
             containingIds = new ArrayList<>(containingIdsSize);
             for (int i = 0; i < containingIdsSize; i++) {
                 containingIds.add(in.readUTF().intern());
             }
         }
-        int intersectingAreasSize = in.readInt();
+        int intersectingAreasSize = in.readUnsignedByte();
         if(intersectingAreasSize > 0) {
             intersectingCountries = new ArrayList<>(intersectingAreasSize);
             for (int i = 0; i < intersectingAreasSize; i++) {
@@ -52,8 +52,8 @@ class CountryBoundariesDeserializer {
         return new CountryAreas(id, outer, inner);
     }
 
-        Point[][] polygons = new Point[in.readInt()][];
     private Point[][] readPolygons(DataInputStream in) throws IOException {
+        Point[][] polygons = new Point[in.readUnsignedByte()][];
         for (int i = 0; i < polygons.length; i++) {
             polygons[i] = readRing(in);
         }
