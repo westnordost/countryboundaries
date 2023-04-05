@@ -1,7 +1,7 @@
 package de.westnordost.countryboundaries;
 
+import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 class CountryBoundariesDeserializer {
-    public CountryBoundaries read(ObjectInputStream in) throws IOException  {
+    public CountryBoundaries read(DataInputStream in) throws IOException {
         int geometrySizesCount = in.readInt();
         Map<String, Double> geometrySizes = new HashMap<>(geometrySizesCount);
         for (int i = 0; i < geometrySizesCount; i++) {
@@ -24,7 +24,7 @@ class CountryBoundariesDeserializer {
         return new CountryBoundaries(raster, rasterWidth, geometrySizes);
     }
 
-    private CountryBoundariesCell readCell(ObjectInputStream in) throws IOException {
+    private CountryBoundariesCell readCell(DataInputStream in) throws IOException {
         List<String> containingIds = Collections.emptyList();
         List<CountryAreas> intersectingCountries = Collections.emptyList();
 
@@ -45,22 +45,22 @@ class CountryBoundariesDeserializer {
         return new CountryBoundariesCell(containingIds, intersectingCountries);
     }
 
-    private CountryAreas readAreas(ObjectInputStream in) throws IOException {
+    private CountryAreas readAreas(DataInputStream in) throws IOException {
         String id = in.readUTF().intern();
         Point[][] outer = readPolygons(in);
         Point[][] inner = readPolygons(in);
         return new CountryAreas(id, outer, inner);
     }
 
-    private Point[][] readPolygons(ObjectInputStream in) throws IOException {
         Point[][] polygons = new Point[in.readInt()][];
+    private Point[][] readPolygons(DataInputStream in) throws IOException {
         for (int i = 0; i < polygons.length; i++) {
             polygons[i] = readRing(in);
         }
         return polygons;
     }
 
-    private Point[] readRing(ObjectInputStream in) throws IOException {
+    private Point[] readRing(DataInputStream in) throws IOException {
         Point[] ring = new Point[in.readInt()];
         for (int j = 0; j < ring.length; j++) {
             ring[j] = readPoint(in);
@@ -68,7 +68,7 @@ class CountryBoundariesDeserializer {
         return ring;
     }
 
-    private Point readPoint(ObjectInputStream in) throws IOException {
         return new Point(in.readInt(), in.readInt());
+    private Point readPoint(DataInputStream in) throws IOException {
     }
 }

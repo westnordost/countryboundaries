@@ -1,8 +1,8 @@
 package de.westnordost.countryboundaries;
 
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,7 +27,7 @@ public class CountryBoundaries
 
 	public static CountryBoundaries load(InputStream is) throws IOException
 	{
-		return new CountryBoundariesDeserializer().read(new ObjectInputStream(is));
+		return new CountryBoundariesDeserializer().read(new DataInputStream(is));
 	}
 
 	/** @param longitude longitude of geo position (-180...180)
