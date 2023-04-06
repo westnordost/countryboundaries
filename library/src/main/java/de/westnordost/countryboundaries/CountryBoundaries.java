@@ -15,7 +15,11 @@ public class CountryBoundaries
 {
 	final CountryBoundariesCell[] raster;
 	final int rasterWidth;
+	private final int rasterHeight;
 	final Map<String, Double> geometrySizes;
+
+	private final double stepsPerLongitude;
+	private final double stepsPerLatitude;
 
 	CountryBoundaries(
 			CountryBoundariesCell[] raster, int rasterWidth, Map<String, Double> geometrySizes)
@@ -23,6 +27,10 @@ public class CountryBoundaries
 		this.raster = raster;
 		this.rasterWidth = rasterWidth;
 		this.geometrySizes = geometrySizes;
+
+		rasterHeight = raster.length / rasterWidth;
+		stepsPerLongitude = 360.0 * 0xffff / rasterWidth;
+		stepsPerLatitude = 180.0 * 0xffff / rasterHeight;
 	}
 
 	public static CountryBoundaries load(InputStream is) throws IOException
@@ -34,15 +42,29 @@ public class CountryBoundaries
 	 *  @param latitude latitude of geo position (-90...90)
 	 *  @param ids ids of the countries to look for. Note that if you have many ids, you should use
 	 *             a Set to increase performance
+	 *
+	 *  @throws IllegalArgumentException if any parameter is not finite (NaN or Infinite)
+	 *          or latitude is not between -90.0 and +90.0
+	 *
 	 *  @return whether the given position is in any of the countries with the given ids */
 	public boolean isInAny(double longitude, double latitude, Collection<String> ids)
 	{
-		return getCell(longitude, latitude).isInAny(longitude, latitude, ids);
+		validatePosition(longitude, latitude);
+		longitude = normalize(longitude, -180.0, 360.0);
+		int cellX = longitudeToCellX(longitude);
+		int cellY = latitudeToCellY(latitude);
+		int localX = longitudeToLocalX(cellX, longitude);
+		int localY = latitudeToLocalY(cellY, latitude);
+		return getCell(cellX, cellY).isInAny(localX, localY, ids);
 	}
 
 	/** @param longitude longitude of geo position (-180...180)
 	 *  @param latitude latitude of geo position (-90...90)
 	 *  @param id id of the country to look for
+	 *
+	 *  @throws IllegalArgumentException if any parameter is not finite (NaN or Infinite)
+	 *          or latitude is not between -90.0 and +90.0
+	 *
 	 *  @return whether the given position is in the country with the given id */
 	public boolean isIn(double longitude, double latitude, String id)
 	{
@@ -54,7 +76,14 @@ public class CountryBoundaries
 	 *  @return the ids of the countries the given position is contained in, ordered by size ascending */
 	public List<String> getIds(double longitude, double latitude)
 	{
-		List<String> result = getCell(longitude, latitude).getIds(longitude, latitude);
+		validatePosition(longitude, latitude);
+		longitude = normalize(longitude, -180.0, 360.0);
+		int cellX = longitudeToCellX(longitude);
+		int cellY = latitudeToCellY(latitude);
+		int localX = longitudeToLocalX(cellX, longitude);
+		int localY = latitudeToLocalY(cellY, latitude);
+
+		List<String> result = getCell(cellX, cellY).getIds(localX, localY);
 		Collections.sort(result, this::compareSize);
 		return result;
 	}
@@ -67,6 +96,10 @@ public class CountryBoundaries
 	 *  @param minLatitude minimum latitude of geo position (-90...90)
 	 *  @param maxLongitude maximum longitude of geo position (-180...180)
 	 *  @param maxLatitude maximum latitude of geo position (-90...90)
+	 *
+	 *  @throws IllegalArgumentException if any parameter is not finite (NaN or Infinite),
+	 *          minLatitude is greater than maxLatitude or any latitude is not between
+	 *          -90.0 and +90.0
 	 *
 	 *  @return the ids of the countries the given bounding box is guaranteed to be contained in,
 	 *          not in any particular order */
@@ -98,8 +131,12 @@ public class CountryBoundaries
 	 *  @param maxLongitude maximum longitude of geo position (-180...180)
 	 *  @param maxLatitude maximum latitude of geo position (-90...90)
 	 *
+	 *  @throws IllegalArgumentException if any parameter is not finite (NaN or Infinite),
+	 *          minLatitude is greater than maxLatitude or any latitude is not between
+	 *          -90.0 and +90.0
+	 *
 	 *  @return the ids of the countries the given bounding box intersects with, not in any
-	 *  particular order */
+	 *          particular order */
 	public Set<String> getIntersectingIds(
 			double minLongitude, double minLatitude, double maxLongitude, double maxLatitude)
 	{
@@ -130,6 +167,8 @@ public class CountryBoundaries
 		if (minLatitude > maxLatitude)
 			throw new IllegalArgumentException("maxLatitude is smaller than minLatitude");
 
+		minLongitude = normalize(minLongitude, -180, 360);
+		maxLongitude = normalize(maxLongitude, -180, 360);
 		int minX = longitudeToCellX(minLongitude);
 		int maxY = latitudeToCellY(minLatitude);
 		int maxX = longitudeToCellX(maxLongitude);
@@ -153,34 +192,41 @@ public class CountryBoundaries
 		void run(CountryBoundariesCell cell);
 	}
 
-	private CountryBoundariesCell getCell(double longitude, double latitude)
-	{
+	private CountryBoundariesCell getCell(int x, int y) {
+		return raster[y * rasterWidth + x];
+	}
+
+	private void validatePosition(double longitude, double latitude) {
 		if (!Double.isFinite(longitude))
 			throw new IllegalArgumentException("longitude must be finite");
 		if (!Double.isFinite(latitude))
 			throw new IllegalArgumentException("latitude must be finite");
 		if (latitude < -90 || latitude > 90)
 			throw new IllegalArgumentException("latitude is out of bounds");
-		int x = longitudeToCellX(longitude);
-		int y = latitudeToCellY(latitude);
-		return raster[y * rasterWidth + x];
 	}
 
-	private int longitudeToCellX(double longitude)
-	{
+	private int longitudeToCellX(double longitude) {
 		return (int) Math.min(
 				rasterWidth - 1,
-				Math.floor(rasterWidth * (180 + normalize(longitude, -180, 360)) / 360.0)
+				Math.floor(rasterWidth * (180 + longitude) / 360.0)
 		);
 	}
 
-	private int latitudeToCellY(double latitude)
-	{
-		int rasterHeight = raster.length / rasterWidth;
+	private int latitudeToCellY(double latitude) {
 		return (int) Math.max(
 				0,
 				Math.ceil(rasterHeight * (90 - latitude) / 180.0) - 1
 		);
+	}
+
+	private int longitudeToLocalX(int cellX, double longitude) {
+		double cellLongitude = -180.0 + 360.0 * cellX / rasterWidth;
+		return (int) ((longitude - cellLongitude) * stepsPerLongitude);
+	}
+
+	private int latitudeToLocalY(int cellY, double latitude) {
+		double cellLatitude = +90 - 180.0 * (cellY + 1) / rasterHeight;
+		return (int) ((latitude - cellLatitude) * stepsPerLatitude);
 	}
 
 	private static double normalize(double value, double startAt, double base)

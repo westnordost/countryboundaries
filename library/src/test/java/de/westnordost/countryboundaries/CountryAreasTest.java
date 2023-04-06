@@ -55,8 +55,8 @@ public class CountryAreasTest
 		assertFalse(areas.covers(p(10,10)));
 	}
 
-	private static Point p(double x, double y)
+	private static Point p(int x, int y)
 	{
-		return new Point(Fixed1E7.doubleToFixed(x),Fixed1E7.doubleToFixed(y));
+		return new Point(x, y);
 	}
 }

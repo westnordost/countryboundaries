@@ -87,23 +87,24 @@ public class CountryBoundariesGenerator
 					continue;
 				}
 				intersection.normalize();
-				intersectingAreas.add(createCountryAreas(areaId, intersection));
+				intersectingAreas.add(createCountryAreas(areaId, intersection, lonMin, latMin, lonMax, latMax));
 			}
 		}
 		return new CountryBoundariesCell(containingIds, intersectingAreas);
 	}
 
-	private CountryAreas createCountryAreas(String areaId, Geometry intersection)
+	private CountryAreas createCountryAreas(
+			String areaId, Geometry intersection, double lonMin, double latMin, double lonMax, double latMax)
 	{
 		List<Point[]> outer = new ArrayList<>(), inner = new ArrayList<>();
 
 		if(intersection instanceof Polygon)
 		{
 			Polygon p = (Polygon) intersection;
-			outer.add(createPoints(p.getExteriorRing()));
+			outer.add(createPoints(p.getExteriorRing(), lonMin, latMin, lonMax, latMax));
 			for (int j = 0; j < p.getNumInteriorRing(); j++)
 			{
-				inner.add(createPoints(p.getInteriorRingN(j)));
+				inner.add(createPoints(p.getInteriorRingN(j), lonMin, latMin, lonMax, latMax));
 			}
 		}
 		else
@@ -112,17 +113,17 @@ public class CountryBoundariesGenerator
 			for (int i = 0; i < mp.getNumGeometries(); i++)
 			{
 				Polygon p = (Polygon) mp.getGeometryN(i);
-				outer.add(createPoints(p.getExteriorRing()));
+				outer.add(createPoints(p.getExteriorRing(), lonMin, latMin, lonMax, latMax));
 				for (int j = 0; j < p.getNumInteriorRing(); j++)
 				{
-					inner.add(createPoints(p.getInteriorRingN(j)));
+					inner.add(createPoints(p.getInteriorRingN(j), lonMin, latMin, lonMax, latMax));
 				}
 			}
 		}
 		return new CountryAreas(areaId,outer.toArray(new Point[][]{}), inner.toArray(new Point[][]{}));
 	}
 
-	private Point[] createPoints(LineString ring)
+	private Point[] createPoints(LineString ring, double lonMin, double latMin, double lonMax, double latMax)
 	{
 		Coordinate[] coords = ring.getCoordinates();
 		// leave out last - not necessary
@@ -130,7 +131,9 @@ public class CountryBoundariesGenerator
 		for (int i = 0; i < coords.length-1; i++)
 		{
 			Coordinate coord = coords[i];
-			result[i] = new Point(Fixed1E7.doubleToFixed(coord.x), Fixed1E7.doubleToFixed(coord.y));
+			int x = (int) ((coord.x - lonMin) * 0xffff / (lonMax - lonMin));
+			int y = (int) ((coord.y - latMin) * 0xffff / (latMax - latMin));
+			result[i] = new Point(x, y);
 		}
 		return result;
 	}

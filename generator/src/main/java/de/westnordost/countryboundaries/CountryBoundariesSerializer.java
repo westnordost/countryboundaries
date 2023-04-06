@@ -6,6 +6,9 @@ import java.util.Map;
 
 public class CountryBoundariesSerializer {
     public void write(CountryBoundaries boundaries, DataOutputStream out) throws IOException {
+        // version
+        out.writeShort(2);
+
         out.writeInt(boundaries.geometrySizes.size());
         for (Map.Entry<String, Double> e : boundaries.geometrySizes.entrySet()) {
             out.writeUTF(e.getKey());
@@ -61,8 +64,11 @@ public class CountryBoundariesSerializer {
         }
     }
 
-        out.writeInt(point.x);
-        out.writeInt(point.y);
     private void writePoint(Point point, DataOutputStream out) throws IOException {
+        if (point.x < 0 || point.x > 0xffff || point.y < 0 || point.y > 0xffff) {
+            throw new RuntimeException("A Point must contain only unsigned shorts (this is very likely a bug in this program)");
+        }
+        out.writeShort(point.x);
+        out.writeShort(point.y);
     }
 }

@@ -87,8 +87,8 @@ public class CountryBoundariesCellTest
 		);
 	}
 
-	private static Point p(double x, double y)
+	private static Point p(int x, int y)
 	{
-		return new Point(Fixed1E7.doubleToFixed(x),Fixed1E7.doubleToFixed(y));
+		return new Point(x, y);
 	}
 }

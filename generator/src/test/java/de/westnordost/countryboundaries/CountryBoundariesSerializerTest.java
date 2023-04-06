@@ -62,8 +62,8 @@ public class CountryBoundariesSerializerTest {
         );
     }
 
-    private static Point p(double x, double y) {
-        return new Point(Fixed1E7.doubleToFixed(x),Fixed1E7.doubleToFixed(y));
+    private static Point p(int x, int y) {
+        return new Point(x, y);
     }
 
     private static Point[] polygon(Point ...points) { return points; }

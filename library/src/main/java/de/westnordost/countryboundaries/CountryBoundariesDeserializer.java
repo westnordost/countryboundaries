@@ -8,8 +8,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+// TODO proper exceptions...
 class CountryBoundariesDeserializer {
     public CountryBoundaries read(DataInputStream in) throws IOException {
+        int version = in.readUnsignedShort();
+        if (version == 44269) { // old/unversioned boundaries file format
+            throw new IOException("The boundaries file serialization format changed. If you are using the default data, get the updated data from https://github.com/westnordost/countryboundaries/tree/master/data , otherwise, you need to re-generate the data with the current version of the generator in the same repository.");
+        } else if (version != 2) {
+            throw new IOException("Wrong version number '" + version + "' of the boundaries file (expected: '2'). You may need to get the current version of the data.");
+        }
+
         int geometrySizesCount = in.readInt();
         Map<String, Double> geometrySizes = new HashMap<>(geometrySizesCount);
         for (int i = 0; i < geometrySizesCount; i++) {
@@ -68,7 +76,7 @@ class CountryBoundariesDeserializer {
         return ring;
     }
 
-        return new Point(in.readInt(), in.readInt());
     private Point readPoint(DataInputStream in) throws IOException {
+        return new Point(in.readUnsignedShort(), in.readUnsignedShort());
     }
 }
