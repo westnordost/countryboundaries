@@ -118,8 +118,9 @@ public class CountryBoundaries
 			else
 			{
 				ids.retainAll(cell.containingIds);
-				if (ids.isEmpty()) return ids;
+				if (ids.isEmpty()) return false;
 			}
+			return true;
 		});
 		return ids;
 	}
@@ -145,6 +146,7 @@ public class CountryBoundaries
 		forCellsIn(minLongitude, minLatitude, maxLongitude, maxLatitude, cell ->
 		{
 			ids.addAll(cell.getAllIds());
+			return true;
 		});
 		return ids;
 	}
@@ -183,14 +185,14 @@ public class CountryBoundaries
 			int x = (minX + xStep) % rasterWidth;
 			for (int y = minY; y <= maxY; y++)
 			{
-				runnable.run(getCell(x, y));
+				if (!runnable.run(getCell(x, y))) return;
 			}
 		}
 	}
 
 	private interface CellRunnable
 	{
-		void run(CountryBoundariesCell cell);
+		boolean run(CountryBoundariesCell cell);
 	}
 
 	private CountryBoundariesCell getCell(int x, int y) {
