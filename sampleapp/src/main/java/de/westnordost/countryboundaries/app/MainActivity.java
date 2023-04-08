@@ -99,7 +99,11 @@ public class MainActivity extends Activity implements MapEventsReceiver
 		long t = System.nanoTime();
 		List<String> ids = countryBoundaries.getIds(p.getLongitude(), p.getLatitude());
 		t = System.nanoTime() - t;
-        resultText.setText(getToastString(ids) + " (in " + String.format(Locale.US, "%,.2f", t*1e-6) + "ms)");
+        resultText.setText(
+                String.format(Locale.US, "%,.5f, %,.5f\n", p.getLatitude(), p.getLongitude()) +
+                getToastString(ids) +
+                " (in " + String.format(Locale.US, "%,.2f", t*1e-6) + "ms)"
+        );
         return true;
     }
 
@@ -157,6 +161,7 @@ public class MainActivity extends Activity implements MapEventsReceiver
         mapView.getOverlays().add(new MapEventsOverlay(this));
         mapView.getController().setCenter(new GeoPoint(45.0,10.0));
         mapView.getController().setZoom(3.0);
+        mapView.getOverlays().add(new GridOverlay());
         mapContainer.addView(mapView);
     }
 
