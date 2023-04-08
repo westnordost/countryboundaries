@@ -182,7 +182,7 @@ public class CountryBoundaries
 			int x = (minX + xStep) % rasterWidth;
 			for (int y = minY; y <= maxY; y++)
 			{
-				runnable.run(raster[y * rasterWidth + x]);
+				runnable.run(getCell(x, y));
 			}
 		}
 	}
