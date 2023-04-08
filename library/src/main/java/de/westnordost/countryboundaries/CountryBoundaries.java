@@ -118,6 +118,7 @@ public class CountryBoundaries
 			else
 			{
 				ids.retainAll(cell.containingIds);
+				if (ids.isEmpty()) return ids;
 			}
 		});
 		return ids;
