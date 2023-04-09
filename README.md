@@ -17,7 +17,8 @@ Add [`de.westnordost:countryboundaries:1.6`](https://mvnrepository.com/artifact/
 
 ```java
 // load data. You should do this once and use CountryBoundaries as a singleton.
-CountryBoundaries boundaries = CountryBoundaries.load(new FileInputStream("boundaries.ser"));
+byte[] bytes = Files.readAllBytes(new File("boundaries.ser").toPath());
+CountryBoundaries boundaries = CountryBoundaries.load(new ByteArrayInputStream(bytes));
 	
 // get country ids by position
 boundaries.getIds(-96.7954, 32.7816); // returns "US-TX","US"
