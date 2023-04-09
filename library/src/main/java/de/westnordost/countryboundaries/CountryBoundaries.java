@@ -15,11 +15,7 @@ public class CountryBoundaries
 {
 	final CountryBoundariesCell[] raster;
 	final int rasterWidth;
-	private final int rasterHeight;
 	final Map<String, Double> geometrySizes;
-
-	private final double stepsPerLongitude;
-	private final double stepsPerLatitude;
 
 	CountryBoundaries(
 			CountryBoundariesCell[] raster, int rasterWidth, Map<String, Double> geometrySizes)
@@ -27,10 +23,6 @@ public class CountryBoundaries
 		this.raster = raster;
 		this.rasterWidth = rasterWidth;
 		this.geometrySizes = geometrySizes;
-
-		rasterHeight = raster.length / rasterWidth;
-		stepsPerLongitude = 360.0 * 0xffff / rasterWidth;
-		stepsPerLatitude = 180.0 * 0xffff / rasterHeight;
 	}
 
 	public static CountryBoundaries load(InputStream is) throws IOException
@@ -216,6 +208,7 @@ public class CountryBoundaries
 	}
 
 	private int latitudeToCellY(double latitude) {
+		int rasterHeight = raster.length / rasterWidth;
 		return (int) Math.max(
 				0,
 				Math.ceil(rasterHeight * (90 - latitude) / 180.0) - 1
@@ -224,12 +217,13 @@ public class CountryBoundaries
 
 	private int longitudeToLocalX(int cellX, double longitude) {
 		double cellLongitude = -180.0 + 360.0 * cellX / rasterWidth;
-		return (int) ((longitude - cellLongitude) * stepsPerLongitude);
+		return (int) ((longitude - cellLongitude) * 360.0 * 0xffff / rasterWidth);
 	}
 
 	private int latitudeToLocalY(int cellY, double latitude) {
+		int rasterHeight = raster.length / rasterWidth;
 		double cellLatitude = +90 - 180.0 * (cellY + 1) / rasterHeight;
-		return (int) ((latitude - cellLatitude) * stepsPerLatitude);
+		return (int) ((latitude - cellLatitude) * 180.0 * 0xffff / rasterHeight);
 	}
 
 	private static double normalize(double value, double startAt, double base)
