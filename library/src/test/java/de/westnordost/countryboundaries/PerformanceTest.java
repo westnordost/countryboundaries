@@ -21,7 +21,7 @@ public class PerformanceTest {
         );
 
         Random random = new Random();
-        int checks = 10_000_000;
+        int checks = 100_000_000;
 
         time = System.nanoTime();
         for (int i = 0; i < checks; i++) {
