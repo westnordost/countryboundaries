@@ -26,6 +26,6 @@ class Point
 
 	@Override public String toString()
 	{
-		return "[" + Fixed1E7.toDouble(x) + "," + Fixed1E7.toDouble(y) + "]";
+		return "[" + x + "," + y + "]";
 	}
 }

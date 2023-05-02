@@ -17,7 +17,8 @@ Add [`de.westnordost:countryboundaries:1.6`](https://mvnrepository.com/artifact/
 
 ```java
 // load data. You should do this once and use CountryBoundaries as a singleton.
-CountryBoundaries boundaries = CountryBoundaries.load(new FileInputStream("boundaries.ser"));
+byte[] bytes = Files.readAllBytes(new File("boundaries.ser").toPath());
+CountryBoundaries boundaries = CountryBoundaries.load(new ByteArrayInputStream(bytes));
 	
 // get country ids by position
 boundaries.getIds(-96.7954, 32.7816); // returns "US-TX","US"
@@ -26,10 +27,10 @@ boundaries.getIds(-96.7954, 32.7816); // returns "US-TX","US"
 boundaries.isIn(8.6910, 47.6973, "DE"); // returns true
 
 // get which country ids can be found within the given bounding box
-boundaries.getIntersectingIds(5.9865, 50.7679, 6.0599, 50.7358) // returns "DE", "BE", "NL
+boundaries.getIntersectingIds(50.6, 5.9, 50.8, 6.1) // returns "NL", "LU", "DE", "BE", "BE-VLG", "BE-WAL"
 
 // get which country ids completely cover the given bounding box
-boundaries.getContainingIds(5.9865, 50.7679, 6.0599, 50.7358) // returns empty list
+boundaries.getContainingIds(50.6, 5.9, 50.8, 6.1) // returns empty list
 ```
 
 The default data file is in `/data/`. Don't forget to give attribution when distributing it. See below.

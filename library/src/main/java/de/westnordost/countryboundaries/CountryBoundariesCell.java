@@ -20,7 +20,7 @@ class CountryBoundariesCell
 	}
 
 	/** Returns whether the given point is in any of the given ids */
-	boolean isInAny(double longitude, double latitude, Collection<String> ids)
+	boolean isInAny(int x, int y, Collection<String> ids)
 	{
 		for (String id : containingIds)
 		{
@@ -28,7 +28,7 @@ class CountryBoundariesCell
 		}
 		if (!intersectingCountries.isEmpty())
 		{
-			Point point = new Point(Fixed1E7.doubleToFixed(longitude), Fixed1E7.doubleToFixed(latitude));
+			Point point = new Point(x, y);
 			for (CountryAreas areas : intersectingCountries)
 			{
 				if (ids.contains(areas.id))
@@ -41,14 +41,14 @@ class CountryBoundariesCell
 	}
 
 	/** Return all ids that cover the given point */
-	List<String> getIds(double longitude, double latitude)
+	List<String> getIds(int x, int y)
 	{
 		List<String> result = new ArrayList<>(containingIds.size());
 
 		result.addAll(containingIds);
 		if (!intersectingCountries.isEmpty())
 		{
-			Point point = new Point(Fixed1E7.doubleToFixed(longitude), Fixed1E7.doubleToFixed(latitude));
+			Point point = new Point(x, y);
 			for (CountryAreas areas : intersectingCountries)
 			{
 				if (areas.covers(point))

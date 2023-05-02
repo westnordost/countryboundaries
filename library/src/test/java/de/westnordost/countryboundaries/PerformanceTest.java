@@ -1,17 +1,29 @@
 package de.westnordost.countryboundaries;
 
 
-import java.io.FileInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.nio.file.Files;
 import java.util.Locale;
 import java.util.Random;
 
 public class PerformanceTest {
 
     public static void main(String[] args) throws Exception {
-        CountryBoundaries boundaries = CountryBoundaries.load(new FileInputStream("data/boundaries360x180.ser"));
-        Random random = new Random();
-        int checks = 1_000_000;
         long time = System.nanoTime();
+        byte[] bytes = Files.readAllBytes(new File("data/boundaries360x180.ser").toPath());
+        CountryBoundaries boundaries = CountryBoundaries.load(new ByteArrayInputStream(bytes));
+        long timeSpentOnLoading = System.nanoTime() - time;
+        System.out.println(
+                "Loading data took " +
+                String.format(Locale.US, "%,.2f", timeSpentOnLoading * 1e-9) +
+                " seconds"
+        );
+
+        Random random = new Random();
+        int checks = 100_000_000;
+
+        time = System.nanoTime();
         for (int i = 0; i < checks; i++) {
             boundaries.getIds(random.nextDouble() * 360.0 - 180.0, random.nextDouble() * 180.0 - 90.0);
         }
@@ -19,12 +31,10 @@ public class PerformanceTest {
 
         time = System.nanoTime();
         for (int i = 0; i < checks; i++) {
-            double x = random.nextDouble() * 360.0 - 180.0;
-            x = random.nextDouble() * 180.0 - 90.0;
+            double x = random.nextDouble() * 360.0 - 180.0 + random.nextDouble() * 180.0 - 90.0;
         }
-        long timeSpentNotOnBoundaries = System.nanoTime() - time;
-
-        long timeSpentOnBoundaries = timeSpent - timeSpentNotOnBoundaries;
+        long timeSpentOnRandom = System.nanoTime() - time;
+        long timeSpentOnBoundaries = timeSpent - timeSpentOnRandom;
 
         System.out.println(
                 "Querying " + checks + " random locations took " +

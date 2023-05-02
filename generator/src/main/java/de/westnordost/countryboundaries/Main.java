@@ -4,10 +4,10 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 
 import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -96,10 +96,8 @@ public class Main
 		CountryBoundaries boundaries = generator.generate(width, height, geometryList);
 		try(FileOutputStream fos = new FileOutputStream("boundaries.ser"))
 		{
-			try(ObjectOutputStream oos = new ObjectOutputStream(fos))
-			{
-				new CountryBoundariesSerializer().write(boundaries, oos);
-			}
+			DataOutputStream dos = new DataOutputStream(fos);
+			new CountryBoundariesSerializer().write(boundaries, dos);
 		}
 	}
 }

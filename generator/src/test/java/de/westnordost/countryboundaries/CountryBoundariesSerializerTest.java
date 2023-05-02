@@ -6,9 +6,9 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +39,7 @@ public class CountryBoundariesSerializerTest {
         );
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutputStream os = new ObjectOutputStream(bos);
+        DataOutputStream os = new DataOutputStream(bos);
         new CountryBoundariesSerializer().write(boundaries, os);
         os.close();
         bos.close();
@@ -47,7 +47,7 @@ public class CountryBoundariesSerializerTest {
         byte[] bytes = bos.toByteArray();
 
         ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-        ObjectInputStream is = new ObjectInputStream(bis);
+        DataInputStream is = new DataInputStream(bis);
         CountryBoundaries boundaries2 = new CountryBoundariesDeserializer().read(is);
 
         assertEquals(boundaries, boundaries2);
@@ -62,8 +62,8 @@ public class CountryBoundariesSerializerTest {
         );
     }
 
-    private static Point p(double x, double y) {
-        return new Point(Fixed1E7.doubleToFixed(x),Fixed1E7.doubleToFixed(y));
+    private static Point p(int x, int y) {
+        return new Point(x, y);
     }
 
     private static Point[] polygon(Point ...points) { return points; }
