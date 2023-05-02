@@ -15,7 +15,7 @@ task fatJar(type: Jar) {
 }
 
 run {
-    args = ["boundaries.osm","180","180"]
+    args = ["boundaries.osm","360","180"]
 }
 
 dependencies {
