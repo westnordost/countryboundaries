@@ -117,7 +117,11 @@ public class CountryBoundaries
 		return ids;
 	}
 
-	/** Identify which countries intersect with the given bounding box. The given bounding box may
+	/** Identify which countries *may* intersect with the given bounding box. I.e. it returns which
+	 *  countries are in the same cell(s) as the bounding box. In other words, any point within the
+	 *  given bounding box can only be in any of the given countries (or none).
+	 *
+	 *  The given bounding box may
 	 *  wrap around the 180th longitude, i.e minLongitude = 170 and maxLongitude = -170.
 	 *
 	 *  @param minLongitude minimum longitude of geo position (-180...180)
@@ -129,7 +133,7 @@ public class CountryBoundaries
 	 *          minLatitude is greater than maxLatitude or any latitude is not between
 	 *          -90.0 and +90.0
 	 *
-	 *  @return the ids of the countries the given bounding box intersects with, not in any
+	 *  @return the ids of the countries the given bounding box may intersects with, not in any
 	 *          particular order */
 	public Set<String> getIntersectingIds(
 			double minLongitude, double minLatitude, double maxLongitude, double maxLatitude)
