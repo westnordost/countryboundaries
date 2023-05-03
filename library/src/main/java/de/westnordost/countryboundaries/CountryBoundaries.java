@@ -117,9 +117,11 @@ public class CountryBoundaries
 		return ids;
 	}
 
-	/** Identify which countries *may* intersect with the given bounding box. I.e. it returns which
-	 *  countries are in the same cell(s) as the bounding box. In other words, any point within the
-	 *  given bounding box can only be in any of the given countries (or none).
+	/** Identify which countries may intersect with the given bounding box. In other words, any
+	 *  point within the given bounding box can only be in any of the returned countries (or none).
+	 *
+	 *  So, from the technical point of view, it just returns which countries are in the same
+	 *  cell(s) of the raster as the bounding box.
 	 *
 	 *  The given bounding box may
 	 *  wrap around the 180th longitude, i.e minLongitude = 170 and maxLongitude = -170.
