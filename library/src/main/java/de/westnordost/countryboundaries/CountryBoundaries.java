@@ -223,13 +223,13 @@ public class CountryBoundaries
 
 	private int longitudeToLocalX(int cellX, double longitude) {
 		double cellLongitude = -180.0 + 360.0 * cellX / rasterWidth;
-		return (int) ((longitude - cellLongitude) * 360.0 * 0xffff / rasterWidth);
+		return (int) ((longitude - cellLongitude) * rasterWidth * 0xffff / 360.0);
 	}
 
 	private int latitudeToLocalY(int cellY, double latitude) {
 		int rasterHeight = raster.length / rasterWidth;
 		double cellLatitude = +90 - 180.0 * (cellY + 1) / rasterHeight;
-		return (int) ((latitude - cellLatitude) * 180.0 * 0xffff / rasterHeight);
+		return (int) ((latitude - cellLatitude) * rasterHeight * 0xffff / 180.0);
 	}
 
 	private static double normalize(double value, double startAt, double base)

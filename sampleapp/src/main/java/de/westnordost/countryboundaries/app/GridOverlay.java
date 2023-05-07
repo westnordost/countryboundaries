@@ -10,8 +10,8 @@ import org.osmdroid.views.overlay.Overlay;
 
 public class GridOverlay extends Overlay {
 
-    public int width = 360;
-    public int height = 180;
+    public int width = 180;
+    public int height = 90;
 
     private final Paint mLinePaint = new Paint();
 

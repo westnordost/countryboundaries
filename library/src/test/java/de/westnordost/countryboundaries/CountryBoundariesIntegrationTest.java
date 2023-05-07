@@ -61,6 +61,6 @@ public class CountryBoundariesIntegrationTest {
     }
 
     private CountryBoundaries load() throws IOException  {
-        return CountryBoundaries.load(new FileInputStream("../data/boundaries360x180.ser"));
+        return CountryBoundaries.load(new FileInputStream("../data/boundaries180x90.ser"));
     }
 }
