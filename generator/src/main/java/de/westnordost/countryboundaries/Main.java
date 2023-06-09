@@ -60,8 +60,9 @@ public class Main
 		}
 
 		Set<String> excludeCountries = new HashSet<>();
-		excludeCountries.add("FX");
-		excludeCountries.add("EU");
+		excludeCountries.add("FX"); // "metropolitan France" is not a country
+		excludeCountries.add("EU"); // not a country
+		excludeCountries.add("AQ"); // not a country
 
 		List<Geometry> geometryList = new ArrayList<>(geometries.getNumGeometries());
 		for (int i = 0; i < geometries.getNumGeometries(); i++)
