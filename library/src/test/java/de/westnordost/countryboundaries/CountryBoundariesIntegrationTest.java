@@ -24,9 +24,9 @@ public class CountryBoundariesIntegrationTest {
         assertEquals(Collections.singletonList("HR"), boundaries.getIds(17.0, 46.0));
         assertEquals(Collections.singletonList("HR"), boundaries.getIds(17.0, 45.5));
 
-        assertEquals(Collections.singletonList("BA"), boundaries.getIds(17.0, 45.0));
-        assertEquals(Collections.singletonList("BA"), boundaries.getIds(16.5, 45.0));
-        assertEquals(Collections.singletonList("BA"), boundaries.getIds(16.0, 45.0));
+        assertEquals(Arrays.asList("BA-SRP","BA"), boundaries.getIds(17.0, 45.0));
+        assertEquals(Arrays.asList("BA-SRP","BA"), boundaries.getIds(16.5, 45.0));
+        assertEquals(Arrays.asList("BA-SRP","BA"), boundaries.getIds(16.0, 45.0));
     }
 
 
