@@ -63,7 +63,6 @@ public class Main
 			Geometry g = geometries.getGeometryN(i);
 			Object id = ((Map)g.getUserData()).get("id");
 			if (id instanceof String && !excludeCountries.contains(id)) {
-				g.setUserData(id);
 				geometryList.add(g);
 			}
 		}
@@ -77,6 +76,11 @@ public class Main
 				writer.write(geojson);
 			}
 			return;
+		}
+
+		for (Geometry geometry : geometryList) {
+			Object id = ((Map)geometry.getUserData()).get("id");
+			geometry.setUserData(id);
 		}
 
 		System.out.print("Generating index...");
