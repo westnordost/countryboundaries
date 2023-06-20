@@ -2,6 +2,7 @@ package de.westnordost.countryboundaries;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.GeometryFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -51,14 +52,6 @@ public class Main
 			return;
 		}
 
-		if(args.length == 2) {
-			String geojson = new GeoJsonWriter().write(geometries);
-			try(Writer writer = new OutputStreamWriter(new FileOutputStream(args[1]), "UTF-8")) {
-				writer.write(geojson);
-			}
-			return;
-		}
-
 		Set<String> excludeCountries = new HashSet<>();
 		excludeCountries.add("FX"); // "metropolitan France" is not a country
 		excludeCountries.add("EU"); // not a country
@@ -73,6 +66,17 @@ public class Main
 				g.setUserData(id);
 				geometryList.add(g);
 			}
+		}
+
+		if(args.length == 2) {
+			Geometry[] geometryArray = new Geometry[geometryList.size()];
+			geometryList.toArray(geometryArray);
+			GeometryCollection collection = new GeometryCollection(geometryArray, new GeometryFactory());
+			String geojson = new GeoJsonWriter().write(collection);
+			try(Writer writer = new OutputStreamWriter(new FileOutputStream(args[1]), "UTF-8")) {
+				writer.write(geojson);
+			}
+			return;
 		}
 
 		System.out.print("Generating index...");
