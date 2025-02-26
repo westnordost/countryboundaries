@@ -5,7 +5,7 @@ plugins {
 
 mainClassName = "de.westnordost.countryboundaries.Main"
 
-task fatJar(type: Jar) {
+tasks.register('fatJar', Jar) {
     manifest {
         attributes "Main-Class": "$mainClassName"
     }
