@@ -9,8 +9,8 @@ task fatJar(type: Jar) {
     manifest {
         attributes "Main-Class": "$mainClassName"
     }
-    baseName = project.name + "-all"
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    archiveBaseName.set("${project.name}-all")
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
 
