@@ -205,6 +205,34 @@ public class GeoJsonWriterTest
 				"}]}", write(g));
 	}
 
+	@Test public void writeFeatureWithStringId()
+	{
+		Polygon g = factory.createPolygon(
+				factory.createLinearRing(new Coordinate[]{p(0,0), p(0,4), p(4,0), p(0,0)}),
+				new LinearRing[]{factory.createLinearRing(new Coordinate[] {p(1,1), p(2,1), p(1,2), p(1,1)})}
+		);
+		g.setUserData(Collections.singletonMap("id", "DE"));
+		assertEquals("{" +
+				"\"type\":\"Feature\",\"id\":\"DE\",\"properties\":{\"id\":\"DE\"}," +
+				"\"geometry\":{\"type\":\"Polygon\"," +
+				"\"coordinates\":[[[0,0],[4,0],[0,4],[0,0]],[[1,1],[1,2],[2,1],[1,1]]]}" +
+				"}", write(g));
+	}
+
+	@Test public void writeFeatureWithNumericId()
+	{
+		Polygon g = factory.createPolygon(
+				factory.createLinearRing(new Coordinate[]{p(0,0), p(0,4), p(4,0), p(0,0)}),
+				new LinearRing[]{factory.createLinearRing(new Coordinate[] {p(1,1), p(2,1), p(1,2), p(1,1)})}
+		);
+		g.setUserData(Collections.singletonMap("id", 123));
+		assertEquals("{" +
+				"\"type\":\"Feature\",\"id\":123,\"properties\":{\"id\":123}," +
+				"\"geometry\":{\"type\":\"Polygon\"," +
+				"\"coordinates\":[[[0,0],[4,0],[0,4],[0,0]],[[1,1],[1,2],[2,1],[1,1]]]}" +
+				"}", write(g));
+	}
+
 	private static String write(Geometry g)
 	{
 		return new GeoJsonWriter().write(g);

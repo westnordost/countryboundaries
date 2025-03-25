@@ -20,6 +20,7 @@ public class GeoJsonWriter
 {
 	private static final String
 			TYPE = "type",
+			ID = "id",
 			FEATURES = "features",
 			COORDINATES = "coordinates",
 			GEOMETRIES = "geometries",
@@ -69,6 +70,14 @@ public class GeoJsonWriter
 	{
 		b.object();
 		b.key(TYPE).value("Feature");
+		if (g.getUserData() instanceof Map<?,?> && ((Map<?,?>) g.getUserData()).containsKey(ID))
+		{
+			Object id = ((Map<?, ?>) g.getUserData()).get(ID);
+			if (id instanceof String || id instanceof Number)
+			{
+				b.key(ID).value(id);
+			}
+		}
 		b.key(PROPERTIES);
 		writeProperties(b, g.getUserData());
 		b.key(GEOMETRY);
