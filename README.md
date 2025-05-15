@@ -1,36 +1,58 @@
 # countryboundaries
 
-Java library to enable fast offline reverse country geocoding: Find out the country / state in which a geo position is located.
-
-It is well tested, does not have any dependencies, works well on Android and most importantly, is very fast.
-
-Requires Java 8.
+Kotlin multiplatform library to find in which region a given geo position is located fast.
 
 ## Copyright and License
 
-© 2018-2023 Tobias Zwick. This library is released under the terms of the [GNU Lesser General Public License](http://www.gnu.org/licenses/lgpl-3.0.html) (LGPL).
+© 2018-2025 Tobias Zwick. This library is released under the terms of the [GNU Lesser General Public License](http://www.gnu.org/licenses/lgpl-3.0.html) (LGPL).
 The default data used is derived from OpenStreetMap and thus © OpenStreetMap contributors and licensed under the [Open Data Commons Open Database License](https://opendatacommons.org/licenses/odbl/) (ODbL).
 
 ## Usage
 
-Add [`de.westnordost:countryboundaries:2.1`](https://mvnrepository.com/artifact/de.westnordost/countryboundaries/2.1) as a Maven dependency or download the jar from there.
+Add `de.westnordost:countryboundaries:3.0.0` as a Maven dependency or download the jar from there.
+
+```kotlin
+// load data. You should do this once and use CountryBoundaries as a singleton.
+val source = FileSystem.source("boundaries.ser").buffered()
+val boundaries = source.use { CountryBoundaries.deserializeFrom(it) }
+
+// get ids of regions at position
+boundaries.getIds(
+    longitude = -96.7954,
+    latitude = 32.7816
+) // returns "US-TX","US"
+
+// check if a position is in region with specified id
+boundaries.isIn(
+    longitude = 8.6910,
+    latitude = 47.6973,
+    id = "DE"
+) // returns true
+
+// get ids of the regions that are present in the given bounds
+boundaries.getIntersectingIds(
+    minLongitude = 50.6,
+    minLatitude = 5.9,
+    maxLongitude = 50.8,
+    maxLatitude = 6.1
+) // returns "NL", "LU", "DE", "BE", "BE-VLG", "BE-WAL"
+
+// get ids of the regions that completely cover the given bounds
+boundaries.getContainingIds(
+    minLongitude = 50.6,
+    minLatitude = 5.9,
+    maxLongitude = 50.8,
+    maxLatitude = 6.1
+) // returns empty list
+```
+
+On Java, use this to load the boundaries:
 
 ```java
-// load data. You should do this once and use CountryBoundaries as a singleton.
-byte[] bytes = Files.readAllBytes(new File("boundaries.ser").toPath());
-CountryBoundaries boundaries = CountryBoundaries.load(new ByteArrayInputStream(bytes));
-	
-// get country ids by position
-boundaries.getIds(-96.7954, 32.7816); // returns "US-TX","US"
-
-// check if a position is in a country
-boundaries.isIn(8.6910, 47.6973, "DE"); // returns true
-
-// get which country ids can be found within the given bounding box
-boundaries.getIntersectingIds(50.6, 5.9, 50.8, 6.1) // returns "NL", "LU", "DE", "BE", "BE-VLG", "BE-WAL"
-
-// get which country ids completely cover the given bounding box
-boundaries.getContainingIds(50.6, 5.9, 50.8, 6.1) // returns empty list
+CountryBoundaries boundaries = null;
+try (FileInputStream fis = new FileInputStream("boundaries.ser")) {
+  boundaries = CountryBoundariesUtils.deserializeFrom(fis);
+}
 ```
 
 The default data file is in `/data/`. Don't forget to give attribution when distributing it. See below.
