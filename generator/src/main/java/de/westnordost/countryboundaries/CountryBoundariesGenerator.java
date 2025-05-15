@@ -11,10 +11,7 @@ import com.vividsolutions.jts.geom.Polygonal;
 import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.index.strtree.STRtree;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CountryBoundariesGenerator
 {
@@ -57,7 +54,7 @@ public class CountryBoundariesGenerator
 		}
 		if(listener != null) listener.onProgress(1);
 
-		return new CountryBoundaries(raster, width, geometrySizes);
+		return new CountryBoundaries(Arrays.asList(raster), width, geometrySizes);
 	}
 
 	private CountryBoundariesCell createCell(
@@ -96,7 +93,8 @@ public class CountryBoundariesGenerator
 	private CountryAreas createCountryAreas(
 			String areaId, Geometry intersection, double lonMin, double latMin, double lonMax, double latMax)
 	{
-		List<Point[]> outer = new ArrayList<>(), inner = new ArrayList<>();
+		List<List<Point>> outer = new ArrayList<>();
+		List<List<Point>> inner = new ArrayList<>();
 
 		if(intersection instanceof Polygon)
 		{
@@ -120,10 +118,10 @@ public class CountryBoundariesGenerator
 				}
 			}
 		}
-		return new CountryAreas(areaId,outer.toArray(new Point[][]{}), inner.toArray(new Point[][]{}));
+		return new CountryAreas(areaId, outer, inner);
 	}
 
-	private Point[] createPoints(LineString ring, double lonMin, double latMin, double lonMax, double latMax)
+	private List<Point> createPoints(LineString ring, double lonMin, double latMin, double lonMax, double latMax)
 	{
 		Coordinate[] coords = ring.getCoordinates();
 		// leave out last - not necessary
@@ -135,7 +133,7 @@ public class CountryBoundariesGenerator
 			int y = (int) ((coord.y - latMin) * 0xffff / (latMax - latMin));
 			result[i] = new Point(x, y);
 		}
-		return result;
+		return Arrays.asList(result);
 	}
 
 	private STRtree buildIndex(List<Geometry> geometries)
@@ -171,7 +169,7 @@ public class CountryBoundariesGenerator
 		if(g instanceof Polygonal)
 		{
 			Object data = g.getUserData();
-			if(data != null && data instanceof String)
+			if(data instanceof String)
 			{
 				return (String) data;
 			}
