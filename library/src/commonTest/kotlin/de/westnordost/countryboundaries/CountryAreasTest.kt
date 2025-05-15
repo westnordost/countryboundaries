@@ -2,7 +2,7 @@ package de.westnordost.countryboundaries
 
 import kotlin.test.*
 
-internal class AreasTest {
+internal class CountryAreasTest {
     @Test fun covers_simple_polygon() {
         assertTrue(CountryAreas("A", listOf(BIG_SQUARE), listOf()).covers(p(5, 5)))
     }
