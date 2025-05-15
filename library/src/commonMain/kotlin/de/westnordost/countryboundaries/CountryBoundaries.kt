@@ -1,5 +1,6 @@
 package de.westnordost.countryboundaries
 
+import kotlinx.io.IOException
 import kotlinx.io.Sink
 import kotlinx.io.Source
 import kotlin.math.ceil
@@ -212,13 +213,15 @@ public class CountryBoundaries internal constructor(
         return value
     }
 
-    /** Serialize this RegionIndex to the given sink */
+    /** Serialize this CountryBoundaries to the given sink */
+    @Throws(IOException::class)
     internal fun serializeTo(sink: Sink) {
         sink.writeRegionIndex(this)
     }
 
     public companion object {
-        /** Create a new RegionIndex by deserializing from the given source */
+        /** Create a new CountryBoundaries by deserializing from the given source */
+        @Throws(IOException::class)
         public fun deserializeFrom(source: Source): CountryBoundaries =
             source.readRegionIndex()
     }
