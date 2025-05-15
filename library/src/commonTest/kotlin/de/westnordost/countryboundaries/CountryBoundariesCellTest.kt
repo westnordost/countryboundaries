@@ -68,8 +68,3 @@ private val B = CountryAreas(
 	outer = listOf(listOf(p(0, 0), p(0, 2), p(2, 2), p(2, 0))),
 	inner = listOf()
 )
-
-private fun p(x: Int, y: Int) = Point(x.toUShort(), y.toUShort())
-
-private fun cell(containing: List<String> = emptyList(), intersecting: List<CountryAreas> = emptyList()) =
-    CountryBoundariesCell(containing, intersecting)

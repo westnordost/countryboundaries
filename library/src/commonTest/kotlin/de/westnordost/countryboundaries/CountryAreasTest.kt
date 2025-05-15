@@ -34,5 +34,3 @@ private val BIG_SQUARE = listOf(p(0, 0), p(0, 10), p(10, 10), p(10, 0))
 private val HOLE = listOf(p(2, 2), p(2, 8), p(8, 8), p(8, 2))
 
 private val SMALL_SQUARE = listOf(p(4, 4), p(4, 6), p(6, 6), p(6, 4))
-
-private fun p(x: Int, y: Int) = Point(x.toUShort(), y.toUShort())

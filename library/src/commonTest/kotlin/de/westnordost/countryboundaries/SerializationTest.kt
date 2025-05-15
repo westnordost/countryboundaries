@@ -43,8 +43,3 @@ internal class SerializationTest {
         assertEquals(boundaries.raster, index2.raster)
     }
 }
-
-private fun cell(containing: List<String> = emptyList(), intersecting: List<CountryAreas> = emptyList()) =
-    CountryBoundariesCell(containing, intersecting)
-
-private fun p(x: Int, y: Int) = Point(x.toUShort(), y.toUShort())

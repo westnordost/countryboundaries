@@ -197,6 +197,3 @@ internal class CountryBoundariesTest {
 private fun emptyBoundaries(): CountryBoundaries {
     return CountryBoundaries(listOf(cell()), 1, emptyMap())
 }
-
-private fun cell(containing: List<String> = emptyList(), intersecting: List<CountryAreas> = emptyList()) =
-    CountryBoundariesCell(containing, intersecting)
