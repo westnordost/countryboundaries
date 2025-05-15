@@ -1,5 +1,6 @@
 plugins {
     id("com.android.application")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -19,9 +20,13 @@ android {
     }
 
     namespace = "de.westnordost.countryboundaries.app"
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }
 
 dependencies {
     implementation("org.maplibre.gl:android-sdk:11.8.8")
+    implementation("androidx.core:core-ktx:1.16.0")
     implementation(project(":library"))
 }
