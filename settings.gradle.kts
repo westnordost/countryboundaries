@@ -16,5 +16,6 @@ dependencyResolutionManagement {
 include(
     ":sampleapp",
     ":library",
-    ":generator"
+    ":generator",
+    ":benchmark"
 )
