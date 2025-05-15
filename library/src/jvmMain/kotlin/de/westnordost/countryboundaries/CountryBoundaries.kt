@@ -1,3 +1,4 @@
+@file:JvmName("CountryBoundariesUtils")
 package de.westnordost.countryboundaries
 
 import kotlinx.io.IOException
@@ -18,6 +19,6 @@ public fun deserializeFrom(inputStream: InputStream): CountryBoundaries =
 
 /** Serialize this CountryBoundaries to the given output stream */
 @Throws(IOException::class)
-internal fun serializeTo(countryBoundaries: CountryBoundaries, outputStream: OutputStream) {
+internal fun serializeTo(outputStream: OutputStream, countryBoundaries: CountryBoundaries) {
     countryBoundaries.serializeTo(outputStream.asSink().buffered())
 }

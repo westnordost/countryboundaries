@@ -5,7 +5,6 @@ import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
@@ -27,7 +26,6 @@ public class Main
 			System.err.println("Missing parameters. F.e. 'boundaries.osm 360 180' or 'boundaries.osm boundaries.json' ");
 			return;
 		}
-
 		String filename = args[0];
 		FileInputStream is = new FileInputStream(filename);
 		GeometryCollection geometries;
@@ -105,7 +103,7 @@ public class Main
 		CountryBoundaries boundaries = generator.generate(width, height, geometryList);
 		try(FileOutputStream fos = new FileOutputStream("boundaries.ser"))
 		{
-			CountryBoundariesKt.serializeTo(boundaries, fos);
+			CountryBoundariesUtils.serializeTo(fos, boundaries);
 		}
 	}
 }
