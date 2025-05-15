@@ -13,7 +13,7 @@ internal class SerializationTest {
         val B = listOf(p(0, 0), p(0, 3), p(3, 3), p(3, 0))
         val Bh = listOf(p(1, 1), p(2, 1), p(2, 2), p(1, 2))
 
-        val index = CountryBoundaries(
+        val boundaries = CountryBoundaries(
             raster = listOf(
                 cell(),
                 cell(containing = listOf("A", "B")),
@@ -35,12 +35,12 @@ internal class SerializationTest {
 
         val buffer = Buffer()
 
-        index.serializeTo(buffer)
+        boundaries.serializeTo(buffer)
         val index2 = CountryBoundaries.deserializeFrom(buffer)
 
-        assertEquals(index.rasterWidth, index2.rasterWidth)
-        assertEquals(index.geometrySizes, index2.geometrySizes)
-        assertEquals(index.raster, index2.raster)
+        assertEquals(boundaries.rasterWidth, index2.rasterWidth)
+        assertEquals(boundaries.geometrySizes, index2.geometrySizes)
+        assertEquals(boundaries.raster, index2.raster)
     }
 }
 

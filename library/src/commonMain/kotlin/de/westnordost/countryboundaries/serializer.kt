@@ -6,18 +6,18 @@ import kotlinx.io.writeUByte
 import kotlinx.io.writeUShort
 import kotlin.collections.iterator
 
-internal fun Sink.writeRegionIndex(index: CountryBoundaries) {
+internal fun Sink.writeCountryBoundaries(boundaries: CountryBoundaries) {
     // version
     writeUShort(2u)
 
-    writeInt(index.geometrySizes.size)
-    for ((id, size) in index.geometrySizes) {
+    writeInt(boundaries.geometrySizes.size)
+    for ((id, size) in boundaries.geometrySizes) {
         writeUTF(id)
         writeDouble(size)
     }
-    writeInt(index.rasterWidth)
-    writeInt(index.raster.size)
-    for (cell in index.raster) {
+    writeInt(boundaries.rasterWidth)
+    writeInt(boundaries.raster.size)
+    for (cell in boundaries.raster) {
         writeCell(cell)
     }
 }

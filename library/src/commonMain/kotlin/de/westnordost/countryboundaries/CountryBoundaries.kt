@@ -216,13 +216,13 @@ public class CountryBoundaries internal constructor(
     /** Serialize this CountryBoundaries to the given sink */
     @Throws(IOException::class)
     internal fun serializeTo(sink: Sink) {
-        sink.writeRegionIndex(this)
+        sink.writeCountryBoundaries(this)
     }
 
     public companion object {
         /** Create a new CountryBoundaries by deserializing from the given source */
         @Throws(IOException::class)
         public fun deserializeFrom(source: Source): CountryBoundaries =
-            source.readRegionIndex()
+            source.readCountryBoundaries()
     }
 }

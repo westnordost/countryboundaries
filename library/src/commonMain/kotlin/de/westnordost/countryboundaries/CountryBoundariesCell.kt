@@ -1,6 +1,6 @@
 package de.westnordost.countryboundaries
 
-/** One cell in the country index grid  */
+/** One cell in the country boundaries grid  */
 internal data class CountryBoundariesCell(
     val containingIds: Collection<String>,
     val intersectingAreas: Collection<CountryAreas>

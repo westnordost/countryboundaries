@@ -7,7 +7,7 @@ import kotlinx.io.readString
 import kotlinx.io.readUByte
 import kotlinx.io.readUShort
 
-internal fun Source.readRegionIndex() : CountryBoundaries {
+internal fun Source.readCountryBoundaries() : CountryBoundaries {
     val version = readUShort().toInt()
     if (version != 2) {
         throw IOException(

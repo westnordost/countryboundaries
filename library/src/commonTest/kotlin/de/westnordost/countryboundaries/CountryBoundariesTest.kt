@@ -145,7 +145,7 @@ internal class CountryBoundariesTest {
     }
 
     @Test fun latitude_out_of_bounds_throws() {
-        val b = emptyRegionIndex()
+        val b = emptyBoundaries()
         val e = IllegalArgumentException::class
 
         assertFailsWith(e) { b.getContainingIds(0.0, -90.0001, 0.0, 0.0) }
@@ -158,14 +158,14 @@ internal class CountryBoundariesTest {
     }
 
     @Test fun max_latitude_is_smaller_than_min_latitude_throws() {
-        val b = emptyRegionIndex()
+        val b = emptyBoundaries()
         val e = IllegalArgumentException::class
 
         assertFailsWith(e) { b.getContainingIds(0.0, 1.1, 0.0, 1.0) }
     }
 
     @Test fun non_finite_numbers_throws() {
-        val b = emptyRegionIndex()
+        val b = emptyBoundaries()
         val e = IllegalArgumentException::class
 
         assertFailsWith(e) { b.getIds(NaN, 0.0) }
@@ -194,7 +194,7 @@ internal class CountryBoundariesTest {
     }
 }
 
-private fun emptyRegionIndex(): CountryBoundaries {
+private fun emptyBoundaries(): CountryBoundaries {
     return CountryBoundaries(listOf(cell()), 1, emptyMap())
 }
 
