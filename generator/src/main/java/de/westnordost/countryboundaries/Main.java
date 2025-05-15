@@ -105,8 +105,7 @@ public class Main
 		CountryBoundaries boundaries = generator.generate(width, height, geometryList);
 		try(FileOutputStream fos = new FileOutputStream("boundaries.ser"))
 		{
-			DataOutputStream dos = new DataOutputStream(fos);
-			new CountryBoundariesSerializer().write(boundaries, dos);
+			CountryBoundariesKt.serializeTo(boundaries, fos);
 		}
 	}
 }
