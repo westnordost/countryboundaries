@@ -1,6 +1,9 @@
 package de.westnordost.countryboundaries
 
 import kotlinx.io.Buffer
+import kotlinx.io.buffered
+import kotlinx.io.files.Path
+import kotlinx.io.files.SystemFileSystem
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -42,4 +45,25 @@ internal class SerializationTest {
         assertEquals(boundaries.geometrySizes, index2.geometrySizes)
         assertEquals(boundaries.raster, index2.raster)
     }
+
+    @Test fun serialization_of_real_data_works() {
+        // get the data first...
+        val boundaries = SystemFileSystem
+            .source(Path("src/commonTest/resources","boundaries180x90.ser"))
+            .buffered()
+            .use { CountryBoundaries.deserializeFrom(it) }
+
+        // serialize again...
+        val buffer = Buffer()
+        boundaries.serializeTo(buffer)
+
+        // and now deserialize again...
+        val boundaries2 = CountryBoundaries.deserializeFrom(buffer)
+
+        assertEquals(
+            boundaries,
+            boundaries2
+        )
+    }
 }
+

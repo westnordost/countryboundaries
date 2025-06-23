@@ -219,6 +219,26 @@ public class CountryBoundaries internal constructor(
         sink.writeCountryBoundaries(this)
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as CountryBoundaries
+
+        if (rasterWidth != other.rasterWidth) return false
+        if (raster != other.raster) return false
+        if (geometrySizes != other.geometrySizes) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = rasterWidth
+        result = 31 * result + raster.hashCode()
+        result = 31 * result + geometrySizes.hashCode()
+        return result
+    }
+
     public companion object {
         /** Create a new CountryBoundaries by deserializing from the given source */
         @Throws(IOException::class)
