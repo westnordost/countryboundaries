@@ -20,5 +20,7 @@ public fun deserializeFrom(inputStream: InputStream): CountryBoundaries =
 /** Serialize this CountryBoundaries to the given output stream */
 @Throws(IOException::class)
 internal fun serializeTo(outputStream: OutputStream, countryBoundaries: CountryBoundaries) {
-    countryBoundaries.serializeTo(outputStream.asSink().buffered())
+    val sink = outputStream.asSink().buffered()
+    countryBoundaries.serializeTo(sink)
+    sink.flush()
 }

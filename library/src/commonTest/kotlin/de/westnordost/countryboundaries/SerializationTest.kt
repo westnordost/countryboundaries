@@ -46,24 +46,30 @@ internal class SerializationTest {
         assertEquals(boundaries.raster, index2.raster)
     }
 
-    @Test fun serialization_of_real_data_works() {
+    @Test fun serialization_to_and_from_file_of_real_data_works() {
         // get the data first...
         val boundaries = SystemFileSystem
             .source(Path("src/commonTest/resources","boundaries180x90.ser"))
             .buffered()
             .use { CountryBoundaries.deserializeFrom(it) }
 
-        // serialize again...
-        val buffer = Buffer()
-        boundaries.serializeTo(buffer)
+        val file2 = Path("src/commonTest/resources","boundariesTemp.ser")
+        try {
+            // serialize again...
+            SystemFileSystem.sink(file2).buffered().use { boundaries.serializeTo(it) }
 
-        // and now deserialize again...
-        val boundaries2 = CountryBoundaries.deserializeFrom(buffer)
+            // and now deserialize again...
+            val boundaries2 = SystemFileSystem.source(file2).buffered().use {
+                CountryBoundaries.deserializeFrom(it)
+            }
 
-        assertEquals(
-            boundaries,
-            boundaries2
-        )
+            assertEquals(
+                boundaries,
+                boundaries2
+            )
+        } finally {
+            SystemFileSystem.delete(file2)
+        }
     }
 }
 
