@@ -2,6 +2,7 @@ package de.westnordost.countryboundaries;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.IntersectionMatrix;
 import com.vividsolutions.jts.geom.LineString;
@@ -79,12 +80,23 @@ public class CountryBoundariesGenerator
 			else if(!im.isDisjoint())
 			{
 				Geometry intersection = g.intersection(bounds);
-				if(!(intersection instanceof Polygonal))
-				{
-					continue;
+				List<Geometry> polygons = new ArrayList<>();
+				if (intersection instanceof GeometryCollection) {
+					GeometryCollection gc = (GeometryCollection) intersection;
+					for (int i = 0; i < gc.getNumGeometries(); i++) {
+						Geometry sub = gc.getGeometryN(i);
+						if (sub instanceof Polygonal) {
+							polygons.add(sub);
+						}
+					}
+				} else if (intersection instanceof Polygonal) {
+					polygons.add(intersection);
 				}
-				intersection.normalize();
-				intersectingAreas.add(createCountryAreas(areaId, intersection, lonMin, latMin, lonMax, latMax));
+
+				for (Geometry poly : polygons) {
+					poly.normalize();
+					intersectingAreas.add(createCountryAreas(areaId, poly, lonMin, latMin, lonMax, latMax));
+				}
 			}
 		}
 		return new CountryBoundariesCell(containingIds, intersectingAreas);
