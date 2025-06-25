@@ -2,6 +2,7 @@ package de.westnordost.countryboundaries;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.IntersectionMatrix;
 import com.vividsolutions.jts.geom.LineString;
@@ -79,16 +80,29 @@ public class CountryBoundariesGenerator
 			else if(!im.isDisjoint())
 			{
 				Geometry intersection = g.intersection(bounds);
-				if(!(intersection instanceof Polygonal))
-				{
-					continue;
+				List<Geometry> polygons = new ArrayList<>();
+				collectPolygons(intersection, polygons);
+				for (Geometry poly : polygons) {
+					poly.normalize();
+					intersectingAreas.add(createCountryAreas(areaId, poly, lonMin, latMin, lonMax, latMax));
 				}
-				intersection.normalize();
-				intersectingAreas.add(createCountryAreas(areaId, intersection, lonMin, latMin, lonMax, latMax));
 			}
 		}
 		return new CountryBoundariesCell(containingIds, intersectingAreas);
 	}
+
+	// Helper function to recursively collect all Polygonal geometries
+	private void collectPolygons(Geometry geom, List<Geometry> polygons) {
+		if (geom instanceof GeometryCollection) {
+			GeometryCollection gc = (GeometryCollection) geom;
+			for (int i = 0; i < gc.getNumGeometries(); i++) {
+				collectPolygons(gc.getGeometryN(i), polygons);
+			}
+		} else if (geom instanceof Polygonal) {
+			polygons.add(geom);
+		}
+	}
+
 
 	private CountryAreas createCountryAreas(
 			String areaId, Geometry intersection, double lonMin, double latMin, double lonMax, double latMax)
