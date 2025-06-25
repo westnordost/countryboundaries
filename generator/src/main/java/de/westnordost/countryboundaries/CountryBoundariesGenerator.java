@@ -81,18 +81,7 @@ public class CountryBoundariesGenerator
 			{
 				Geometry intersection = g.intersection(bounds);
 				List<Geometry> polygons = new ArrayList<>();
-				if (intersection instanceof GeometryCollection) {
-					GeometryCollection gc = (GeometryCollection) intersection;
-					for (int i = 0; i < gc.getNumGeometries(); i++) {
-						Geometry sub = gc.getGeometryN(i);
-						if (sub instanceof Polygonal) {
-							polygons.add(sub);
-						}
-					}
-				} else if (intersection instanceof Polygonal) {
-					polygons.add(intersection);
-				}
-
+				collectPolygons(intersection, polygons);
 				for (Geometry poly : polygons) {
 					poly.normalize();
 					intersectingAreas.add(createCountryAreas(areaId, poly, lonMin, latMin, lonMax, latMax));
@@ -101,6 +90,19 @@ public class CountryBoundariesGenerator
 		}
 		return new CountryBoundariesCell(containingIds, intersectingAreas);
 	}
+
+	// Helper function to recursively collect all Polygonal geometries
+	private void collectPolygons(Geometry geom, List<Geometry> polygons) {
+		if (geom instanceof GeometryCollection) {
+			GeometryCollection gc = (GeometryCollection) geom;
+			for (int i = 0; i < gc.getNumGeometries(); i++) {
+				collectPolygons(gc.getGeometryN(i), polygons);
+			}
+		} else if (geom instanceof Polygonal) {
+			polygons.add(geom);
+		}
+	}
+
 
 	private CountryAreas createCountryAreas(
 			String areaId, Geometry intersection, double lonMin, double latMin, double lonMax, double latMax)
