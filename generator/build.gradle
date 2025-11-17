@@ -11,6 +11,7 @@ tasks.register('fatJar', Jar) {
     }
     archiveBaseName.set("${project.name}-all")
     from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     with jar
 }
 
